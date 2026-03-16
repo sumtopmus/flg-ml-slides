@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Slide 1</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 720px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--theme-color-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <h1>Talk Title</h1>
+    <p class="subtitle">Your subtitle goes here</p>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        // e.data.direction: 'forward' | 'backward' | 'initial'
+        // trigger enter animations here
+      }
+      if (e.data?.type === 'slideExit') {
+        // clean up / stop timers here
+      }
+    })
+  </script>
+</body>
+</html>

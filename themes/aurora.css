@@ -1,0 +1,105 @@
+/*
+ * GRIDCOM — Aurora Slide Theme
+ *
+ * Fixed dark appearance: deep background with animated indigo/violet gradient.
+ * Unaffected by the viewer's dark/light/system interface color mode.
+ *
+ * Usage in a slide:
+ *   <link rel="stylesheet" href="../../themes/aurora.css">
+ *   <!-- first children of <body>: -->
+ *   <div class="bg"></div>
+ *   <div class="grid-lines"></div>
+ *   <!-- content must have position: relative so it stacks above the layers -->
+ */
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+
+html {
+  --theme-bg:              #09090b;
+  --theme-color:           #fafafa;
+  --theme-color-secondary: #d4d4d8;
+  --theme-color-muted:     #a1a1aa;
+  --theme-accent:          #6366f1;
+  --theme-accent-alt:      #818cf8;
+  --theme-accent-subtle:   rgba(99, 102, 241, 0.12);
+  --theme-surface:         #18181b;
+  --theme-border:          #27272a;
+
+  /* Data visualization palette */
+  --pos:   #fb923c;
+  --neg:   #a78bfa;
+  --pos-a: rgba(251, 146, 60, 0.13);
+  --neg-a: rgba(167, 139, 250, 0.13);
+
+  /* Chart/SVG utility palette */
+  --chart-grid:       rgba(255, 255, 255, 0.055);
+  --chart-axis:       rgba(255, 255, 255, 0.28);
+  --chart-label:      rgba(255, 255, 255, 0.65);
+  --chart-tick:       rgba(255, 255, 255, 0.58);
+  --chart-ref:        rgba(255, 255, 255, 0.17);
+  --chart-ref-label:  rgba(255, 255, 255, 0.22);
+  --chart-dot-idle:   rgba(255, 255, 255, 0.85);
+  --chart-dot-stroke: rgba(255, 255, 255, 0.9);
+  --chart-badge-bg:   rgba(15, 15, 35, 0.85);
+  --chart-area:       rgba(99, 102, 241, 0.13);
+  --chart-row-sep:    rgba(255, 255, 255, 0.04);
+  --chart-bar-bg:     rgba(255, 255, 255, 0.08);
+}
+
+/* ── Base reset & viewport ────────────────────────────────────────────────── */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Base body ────────────────────────────────────────────────────────────── */
+
+body {
+  background: var(--theme-bg);
+  color: var(--theme-color);
+  font-family: 'Inter', system-ui, sans-serif;
+  position: relative;
+}
+
+/* ── Background layers ────────────────────────────────────────────────────── */
+
+.bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%, rgba(99,102,241,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 75% 65%, rgba(139,92,246,0.12) 0%, transparent 55%),
+    #09090b;
+  animation: bgPulse 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.grid-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+@keyframes bgPulse {
+  from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+
+/* ── Heading gradients ────────────────────────────────────────────────────── */
+
+h1, h2 {
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+h1 { background-image: linear-gradient(135deg, #fafafa 30%, #a1a1aa); }
+h2 { background-image: linear-gradient(135deg, #fafafa 40%, #a1a1aa); }

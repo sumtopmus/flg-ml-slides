@@ -1,0 +1,391 @@
+/* Viewer layout */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#viewer-root {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Slide area */
+#slide-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+
+/* Canvas stage — hosts the iframes */
+#canvas-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Slide scaler — wraps iframes; scaled to 1920×1080 in fixed-canvas mode */
+#slide-scaler {
+  position: absolute;
+  inset: 0;
+}
+
+#viewer-root.fixed-canvas #slide-scaler {
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+  /* transform value is set dynamically by viewer.ts */
+}
+
+#slide-scaler iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+}
+
+/* Fixed 16:9 canvas mode */
+#viewer-root.fixed-canvas #slide-container {
+  background: #111;
+}
+
+#viewer-root.fixed-canvas #canvas-stage {
+  aspect-ratio: 16 / 9;
+  width: min(100cqw, calc(100cqh * 16 / 9));
+  height: min(100cqh, calc(100cqw * 9 / 16));
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.06);
+  background: #111;
+}
+
+/* Slide transitions */
+#slide-container.transition-fade iframe.leaving {
+  animation: fade-out var(--transition-slow) ease forwards;
+}
+
+#slide-container.transition-fade iframe.entering {
+  animation: fade-in var(--transition-slow) ease forwards;
+}
+
+#slide-container.transition-slide-left iframe.leaving {
+  animation: slide-out-left var(--transition-slow) ease forwards;
+}
+
+#slide-container.transition-slide-left iframe.entering {
+  animation: slide-in-right var(--transition-slow) ease forwards;
+}
+
+#slide-container.transition-slide-right iframe.leaving {
+  animation: slide-out-right var(--transition-slow) ease forwards;
+}
+
+#slide-container.transition-slide-right iframe.entering {
+  animation: slide-in-left var(--transition-slow) ease forwards;
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+@keyframes slide-out-left {
+  to { transform: translateX(-100%); opacity: 0; }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slide-out-right {
+  to { transform: translateX(100%); opacity: 0; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+}
+
+/* Chrome — the control bar */
+#viewer-chrome {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: opacity var(--transition-base);
+}
+
+#viewer-chrome.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#progress-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+#progress-fill {
+  width: 0;
+  height: 100%;
+  background: var(--color-accent);
+  transition: width var(--transition-base);
+}
+
+#controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: relative;
+}
+
+/* Fixed canvas button active state */
+#viewer-root.fixed-canvas #btn-canvas {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--color-accent);
+}
+
+/* Theme switch — push to right side */
+#theme-switch {
+  margin-left: auto;
+}
+
+#nav-cluster {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+#nav-cluster > * {
+  pointer-events: auto;
+}
+
+#slide-counter {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+/* Help button */
+#btn-help {
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+}
+
+/* Back to index link */
+#btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  transition: color var(--transition-fast);
+  text-decoration: none;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+#btn-back:hover {
+  color: var(--color-text-primary);
+}
+
+/* Keyboard hint — position only (visual styles in global.css) */
+#kbd-hint {
+  position: absolute;
+  bottom: 4rem;
+  right: 1rem;
+  z-index: 50;
+}
+
+/* Grid overlay */
+#grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 200;
+  background: rgba(9, 9, 11, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: none;
+  flex-direction: column;
+  padding: 2rem;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+#grid-overlay.visible {
+  display: flex;
+}
+
+#grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#grid-title {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+#btn-close-grid {
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+#btn-close-grid:hover {
+  color: var(--color-text-primary);
+  background: rgba(255,255,255,0.08);
+}
+
+#grid-slides {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.grid-thumb {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+  aspect-ratio: 16 / 9;
+  background: var(--color-surface);
+}
+
+.grid-thumb:hover {
+  transform: scale(1.02);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.grid-thumb.active {
+  border-color: var(--color-accent);
+}
+
+.grid-thumb iframe {
+  width: 200%;
+  height: 200%;
+  transform: scale(0.5);
+  transform-origin: top left;
+  pointer-events: none;
+  border: none;
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+}
+
+.grid-thumb iframe.loaded {
+  opacity: 1;
+}
+
+.grid-thumb-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.4rem 0.6rem;
+  background: rgba(0, 0, 0, 0.75);
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grid-thumb-num {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(0,0,0,0.5);
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+}
+
+/* ── Presentation-theme stage background ──────────────────────────────────── */
+/* Matches the canvas-stage background to the slide content so no flash        */
+/* appears between slides during transitions. Independent of interface mode.   */
+/* Specificity (0,2,1) — same as #viewer-root.fixed-canvas #canvas-stage,     */
+/* but declared later so it wins even in fixed-canvas mode.                    */
+
+#viewer-root #canvas-stage[data-presentation-theme="eclipse"] {
+  background: #fafafa;
+}
+
+/* ── Light interface theme overrides ──────────────────────────────────────── */
+
+html.theme-light #viewer-root {
+  background: #f0f0f0;
+}
+
+html.theme-light #viewer-root.fixed-canvas #slide-container {
+  background: #e4e4e7;
+}
+
+html.theme-light #viewer-root.fixed-canvas #canvas-stage {
+  background: #e4e4e7;
+}
+
+html.theme-light #controls {
+  background: rgba(250, 250, 250, 0.9);
+}
+
+html.theme-light #grid-overlay {
+  background: rgba(244, 244, 245, 0.97);
+}
+
+@media (prefers-color-scheme: light) {
+  html.theme-system #viewer-root {
+    background: #f0f0f0;
+  }
+
+  html.theme-system #viewer-root.fixed-canvas #slide-container {
+    background: #e4e4e7;
+  }
+
+  html.theme-system #viewer-root.fixed-canvas #canvas-stage {
+    background: #e4e4e7;
+  }
+
+  html.theme-system #controls {
+    background: rgba(250, 250, 250, 0.9);
+  }
+
+  html.theme-system #grid-overlay {
+    background: rgba(244, 244, 245, 0.97);
+  }
+}
