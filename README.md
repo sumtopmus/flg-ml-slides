@@ -1,42 +1,4 @@
-# GRIDCOM
-
-A shared slide presentation platform for study groups. Presentations are standalone HTML+CSS pages rendered in a 16:9 viewer — no frameworks, no build complexity per slide.
-
-**Live demo:** each group's site lives at `https://<org-or-username>.github.io/<repo-name>/`
-
----
-
-## For Study Group Owners — Initial Setup
-
-### 1. Fork the repository
-
-Click **Fork** on GitHub. Give the fork a name that reflects your group (e.g. `cs101-slides`).
-
-### 2. Set the deployment base path
-
-Open `vite.config.ts` and update `base` to match your repository name:
-
-```ts
-base: '/<your-repo-name>/',
-```
-
-> Use `base: '/'` only if you have a custom domain configured in GitHub Pages.
-
-Commit and push the change to `main`.
-
-### 3. Enable GitHub Pages
-
-1. Go to your repository → **Settings** → **Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Save
-
-The deployment workflow (`.github/workflows/deploy.yml`) triggers automatically on every push to `main`. After the first successful run, your site is live.
-
-### 4. Add students as collaborators
-
-Go to **Settings** → **Collaborators** → **Add people** and invite each student by their GitHub username. They need at least **Write** access to open pull requests from branches (or you can accept forks — both workflows work).
-
----
+# FLG_ML Presentations
 
 ## For Students — Adding Your Presentation
 
@@ -54,7 +16,7 @@ clone → branch → Claude Code → PR → review → merge → auto-deploy
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<org>/<repo>.git
+git clone https://github.com/sumtopmus/flg-ml-slides.git
 cd <repo>
 npm install
 npm run dev      # preview at localhost:5173
