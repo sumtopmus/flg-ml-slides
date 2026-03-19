@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperparameters</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 4rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .slide-title span { color: var(--theme-accent); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease 0.1s, transform 0.45s ease 0.1s;
+    }
+
+    .hp-box {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+    }
+
+    .hp-box.accent { border-color: var(--theme-accent); }
+
+    .hp-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.6rem;
+    }
+
+    .hp-box.accent .hp-title { color: var(--theme-accent); }
+
+    .hp-formula {
+      font-family: monospace;
+      font-size: 1rem;
+      color: var(--theme-color-secondary);
+      margin-bottom: 0.6rem;
+    }
+
+    .hp-formula .hl { color: var(--theme-accent); }
+
+    .hp-body {
+      font-size: 0.84rem;
+      color: var(--theme-color-muted);
+      line-height: 1.55;
+    }
+
+    .hp-body code {
+      font-family: monospace;
+      background: rgba(255,255,255,0.07);
+      padding: 0.1em 0.3em;
+      border-radius: 4px;
+      color: var(--theme-color-secondary);
+      font-size: 0.9em;
+    }
+
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease 0.28s, transform 0.4s ease 0.28s;
+    }
+
+    .shown .slide-title { opacity: 1; transform: none; }
+    .shown .grid { opacity: 1; transform: none; }
+    .shown .bottom-row { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="slide-title">Key <span>Hyperparameters</span></div>
+
+    <div class="grid">
+      <div class="hp-box accent">
+        <div class="hp-title">FFN Dimension</div>
+        <div class="hp-formula">d_ff = <span class="hl">4</span> × d_model</div>
+        <div class="hp-body">
+          Standard rule. With GLU activations, scale down by 2/3:<br>
+          <code>d_ff = 8/3 × d_model</code><br>
+          to keep parameter count comparable.<br>
+          Exception: T5 uses <code>d_ff = 64 × d_model</code>.
+        </div>
+      </div>
+
+      <div class="hp-box">
+        <div class="hp-title">Attention Heads</div>
+        <div class="hp-formula">head_dim × num_heads = d_model</div>
+        <div class="hp-body">
+          More heads → smaller head_dim, proportionally.<br>
+          But <code>head_dim × num_heads</code> <em>can</em> exceed d_model — output projection handles the mismatch.
+        </div>
+      </div>
+
+      <div class="hp-box">
+        <div class="hp-title">Depth vs Width (Aspect Ratio)</div>
+        <div class="hp-formula">aspect ratio = d_model / n_layers</div>
+        <div class="hp-body">
+          Width can be parallelised across GPUs (layer sliced into matrices).<br>
+          Depth cannot — layers must run sequentially.<br>
+          Trade-off: wide &amp; shallow vs narrow &amp; deep.
+        </div>
+      </div>
+
+      <div class="hp-box">
+        <div class="hp-title">Vocabulary Size</div>
+        <div class="hp-formula">30–50k &nbsp;/&nbsp; 100–250k</div>
+        <div class="hp-body">
+          Single language: <code>~30–50k</code> tokens.<br>
+          Multilingual models: <code>~100–250k</code> tokens to cover scripts and languages.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>

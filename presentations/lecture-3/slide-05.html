@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Positional Embeddings — RoPE</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 4rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .slide-title span { color: var(--theme-accent); }
+
+    .key-idea {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-accent);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      font-size: 1rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+    }
+
+    .key-idea strong { color: var(--theme-accent); }
+
+    .three-cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease 0.2s, transform 0.45s ease 0.2s;
+    }
+
+    .col-box {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 12px;
+      padding: 1.2rem 1.3rem;
+    }
+
+    .col-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.55rem;
+    }
+
+    .col-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin-bottom: 0.45rem;
+    }
+
+    .col-body {
+      font-size: 0.83rem;
+      color: var(--theme-color-muted);
+      line-height: 1.55;
+    }
+
+    .col-body code {
+      font-family: monospace;
+      background: rgba(255,255,255,0.07);
+      padding: 0.1em 0.3em;
+      border-radius: 4px;
+      color: var(--theme-color-secondary);
+    }
+
+    .math-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease 0.32s, transform 0.4s ease 0.32s;
+    }
+
+    .math-box {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 1rem 1.3rem;
+    }
+
+    .math-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .math-formula {
+      font-family: monospace;
+      font-size: 0.98rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.7;
+    }
+
+    .math-formula .hl { color: var(--theme-accent); }
+
+    .shown .slide-title { opacity: 1; transform: none; }
+    .shown .key-idea { opacity: 1; transform: none; }
+    .shown .three-cols { opacity: 1; transform: none; }
+    .shown .math-row { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="slide-title">Positional Embeddings — <span>RoPE</span></div>
+
+    <div class="key-idea">
+      <strong>Key insight:</strong> Rotate query and key vectors by angles proportional to their position. The dot product then depends only on <strong>relative distance</strong>, not absolute positions.
+    </div>
+
+    <div class="three-cols">
+      <div class="col-box">
+        <div class="col-num">How</div>
+        <div class="col-title">Rotation by angle θ·m</div>
+        <div class="col-body">
+          Token at position <code>m</code> is rotated by angle <code>θ·m</code>. Applied to Q and K vectors, <em>not</em> at the input embeddings.
+        </div>
+      </div>
+      <div class="col-box">
+        <div class="col-num">Why it works</div>
+        <div class="col-title">Relative angle in dot product</div>
+        <div class="col-body">
+          <code>(RotQ) · (RotK)ᵀ</code> collapses to angle <code>θ·(m−n)</code> — only the <em>relative distance</em> between tokens survives.
+        </div>
+      </div>
+      <div class="col-box">
+        <div class="col-num">Effect</div>
+        <div class="col-title">Distance-aware attention</div>
+        <div class="col-body">
+          Far tokens → large rotation diff → smaller dot product. Nearby tokens attend more strongly. Position encoded <em>geometrically</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="math-row">
+      <div class="math-box">
+        <div class="math-label">Rotation applied at position m</div>
+        <div class="math-formula">q<sub>m</sub> = <span class="hl">R(θ·m)</span> · q<br>k<sub>n</sub> = <span class="hl">R(θ·n)</span> · k</div>
+      </div>
+      <div class="math-box">
+        <div class="math-label">Dot product result</div>
+        <div class="math-formula">q<sub>m</sub> · k<sub>n</sub> = f(q, k, <span class="hl">m−n</span>)<br><br>Only relative position (m−n) matters</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>

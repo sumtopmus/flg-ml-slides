@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Layer Norm</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 4rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 2.4rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--theme-color);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .slide-title span { color: var(--theme-accent); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+    }
+
+    .card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 12px;
+      padding: 1.4rem 1.6rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .card-num {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.7rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-body {
+      font-size: 0.88rem;
+      color: var(--theme-color-muted);
+      line-height: 1.6;
+    }
+
+    .card-body code {
+      font-family: monospace;
+      background: rgba(255,255,255,0.07);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: var(--theme-color-secondary);
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease 0.3s, transform 0.45s ease 0.3s;
+    }
+
+    .compare-box {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+    }
+
+    .compare-box.highlight { border-color: var(--theme-accent); }
+
+    .compare-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .compare-box.highlight .compare-label { color: var(--theme-accent); }
+
+    .formula {
+      font-family: monospace;
+      font-size: 1rem;
+      color: var(--theme-color-secondary);
+    }
+
+    .formula span { color: var(--theme-accent); }
+
+    .shown .slide-title { opacity: 1; transform: none; }
+    .shown .card:nth-child(1) { opacity: 1; transform: none; transition-delay: 0.1s; }
+    .shown .card:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.18s; }
+    .shown .card:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.26s; }
+    .shown .compare { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="slide-title">Layer <span>Norm</span> Choices</div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-num">01</div>
+        <div class="card-title">RMS Norm</div>
+        <div class="card-body">
+          Instead of full Layer Norm, use <code>RMSNorm</code> — normalize by root mean square only.<br><br>
+          Simpler, faster, and empirically matches LayerNorm quality.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <div class="card-title">Pre-Norm</div>
+        <div class="card-body">
+          Apply norm <em>before</em> the sublayer (attention / FFN), not after.<br><br>
+          More stable gradient flow during training. Dominant in modern LLMs.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <div class="card-title">No Bias in FFN</div>
+        <div class="card-body">
+          Drop the bias term in the final linear layer before softmax.<br><br>
+          Reduces parameters with minimal quality loss.
+        </div>
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="compare-box">
+        <div class="compare-label">Post-Norm (old)</div>
+        <div class="formula">x → Sublayer → <span>Norm</span>(x + residual)</div>
+      </div>
+      <div class="compare-box highlight">
+        <div class="compare-label">Pre-Norm (modern)</div>
+        <div class="formula">x → <span>Norm</span>(x) → Sublayer → + residual</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>

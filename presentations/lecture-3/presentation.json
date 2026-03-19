@@ -1,0 +1,20 @@
+{
+  "id": "lecture-3",
+  "title": "Lecture 3: Transformer Things",
+  "description": "Modern transformer architecture choices: norms, activations, positional embeddings, and attention variants.",
+  "author": "CSS 366",
+  "date": "2025-10-07",
+  "tags": ["transformers", "deep-learning", "architecture"],
+  "theme": "eclipse",
+  "slides": [
+    { "file": "slide-01.html", "title": "Title", "transition": "fade" },
+    { "file": "slide-02.html", "title": "Layer Norm", "transition": "slide-left" },
+    { "file": "slide-03.html", "title": "Activations & GLU", "transition": "slide-left" },
+    { "file": "slide-04.html", "title": "Serial vs Parallel Layers", "transition": "slide-left" },
+    { "file": "slide-05.html", "title": "Positional Embeddings (RoPE)", "transition": "slide-left" },
+    { "file": "slide-06.html", "title": "Hyperparameters", "transition": "slide-left" },
+    { "file": "slide-07.html", "title": "Regularization", "transition": "slide-left" },
+    { "file": "slide-08.html", "title": "Stability Tricks", "transition": "slide-left" },
+    { "file": "slide-09.html", "title": "Attention Heads", "transition": "slide-left" }
+  ]
+}
