@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sparse Attention</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; align-items: center; justify-content: center; padding: 2.5rem 4rem; }
+
+    .content {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1050px;
+      display: flex; flex-direction: column; gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--theme-color);
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .slide-title span { color: var(--theme-accent); }
+
+    .cards {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+    }
+
+    .card {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 12px; padding: 1.3rem 1.5rem;
+      display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .card.highlight { border-color: var(--theme-accent); }
+
+    .card-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--theme-accent); }
+    .card-heading { font-size: 1.05rem; font-weight: 700; color: var(--theme-color); }
+    .card-body { font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.6; }
+    .card-body strong { color: var(--theme-color); }
+
+    /* attention pattern grid visuals */
+    .pattern {
+      display: grid; gap: 2px;
+      width: fit-content;
+    }
+    .pattern-row { display: flex; gap: 2px; }
+    .cell {
+      width: 18px; height: 18px; border-radius: 2px;
+      background: var(--theme-border);
+    }
+    .cell.on  { background: var(--theme-accent); opacity: 0.85; }
+    .cell.dim { background: var(--theme-accent); opacity: 0.25; }
+
+    .formula {
+      font-family: monospace; font-size: 0.88rem; color: var(--theme-color-secondary);
+      background: rgba(0,0,0,0.04); padding: 0.4rem 0.7rem; border-radius: 6px;
+    }
+    .formula .accent { color: var(--theme-accent); }
+
+    .takeaway {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 1rem 1.4rem;
+      font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.6;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.4s ease 0.28s, transform 0.4s ease 0.28s;
+    }
+    .takeaway strong { color: var(--theme-color); }
+
+    .shown .slide-title, .shown .cards, .shown .takeaway { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="slide-title">Sparse &amp; Sliding Window <span>Attention</span></div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-title">Problem</div>
+        <div class="card-heading">Full attention is O(n²)</div>
+        <div class="card-body">
+          Every token attends to every other token.<br>
+          For long sequences (100k+ tokens) this becomes <strong>prohibitively expensive</strong> in both compute and memory.
+        </div>
+        <!-- full attention pattern -->
+        <div class="pattern">
+          <div class="pattern-row"><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div></div>
+          <div class="pattern-row"><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div></div>
+          <div class="pattern-row"><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div></div>
+          <div class="pattern-row"><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div></div>
+        </div>
+        <div class="formula">complexity: <span class="accent">O(n²)</span> — full matrix</div>
+      </div>
+
+      <div class="card highlight">
+        <div class="card-title">Solutions</div>
+        <div class="card-heading">Sliding Window &amp; Sparse Attention</div>
+        <div class="card-body">
+          <strong>Sliding window:</strong> each token attends only to the W nearest neighbours. Information propagates via depth over layers.<br><br>
+          <strong>Sparse patterns:</strong> combine local window + a few global tokens (e.g. [CLS], task tokens) that attend everywhere.
+        </div>
+        <!-- sliding window pattern -->
+        <div class="pattern">
+          <div class="pattern-row"><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div>
+          <div class="pattern-row"><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div></div>
+          <div class="pattern-row"><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div></div>
+          <div class="pattern-row"><div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div></div>
+        </div>
+        <div class="formula">complexity: <span class="accent">O(n · W)</span> — window size W ≪ n</div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <strong>Used in:</strong> Mistral (sliding window), Longformer, BigBird (sparse + global tokens). Enables context lengths of 128k–1M tokens that would be impossible with full attention.
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') document.querySelector('.content').classList.add('shown')
+      if (e.data?.type === 'slideExit')  document.querySelector('.content').classList.remove('shown')
+    })
+  </script>
+</body>
+</html>

@@ -16,6 +16,12 @@
     { "file": "slide-08b.html", "title": "Hyperparameters", "transition": "fade" },
     { "file": "slide-08c.html", "title": "Hyperparameter Questions", "transition": "slide-left" },
     { "file": "slide-08d.html", "title": "Hyperparameter Answers", "transition": "slide-left" },
-    { "file": "slide-08e.html", "title": "Stability Tricks", "transition": "fade" }
+    { "file": "slide-08e.html", "title": "Stability Tricks", "transition": "fade" },
+    { "file": "slide-09.html", "title": "Softmax is the Problem", "transition": "slide-left" },
+    { "file": "slide-10.html", "title": "Z-Loss", "transition": "slide-left" },
+    { "file": "slide-11.html", "title": "Fixing the Softmax", "transition": "slide-left" },
+    { "file": "slide-12.html", "title": "KV Cache", "transition": "slide-left" },
+    { "file": "slide-13.html", "title": "MQA & GQA", "transition": "slide-left" },
+    { "file": "slide-14.html", "title": "Sparse Attention", "transition": "slide-left" }
   ]
 }
