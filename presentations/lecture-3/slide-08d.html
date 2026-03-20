@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperparameter Answers</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 4rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.6rem;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--theme-color);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .slide-title span { color: var(--theme-accent); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 12px;
+      padding: 1.3rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .card.highlight { border-color: var(--theme-accent); }
+
+    .card-q {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--theme-color-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .card-a {
+      font-size: 0.95rem;
+      color: var(--theme-color);
+      line-height: 1.55;
+    }
+
+    .card-a strong { color: var(--theme-accent); }
+
+    .card-a code {
+      font-family: monospace;
+      font-size: 0.88em;
+      background: rgba(0,0,0,0.06);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      color: var(--theme-color-secondary);
+    }
+
+    .shown .slide-title { opacity: 1; transform: none; }
+    .shown .card:nth-child(1) { opacity: 1; transform: none; transition-delay: 0.08s; }
+    .shown .card:nth-child(2) { opacity: 1; transform: none; transition-delay: 0.16s; }
+    .shown .card:nth-child(3) { opacity: 1; transform: none; transition-delay: 0.24s; }
+    .shown .card:nth-child(4) { opacity: 1; transform: none; transition-delay: 0.32s; }
+    .shown .card:nth-child(5) { opacity: 1; transform: none; transition-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="slide-title">Hyper<span>parameter</span> Answers</div>
+
+    <div class="grid">
+      <div class="card highlight">
+        <div class="card-q">FFN size vs hidden size?</div>
+        <div class="card-a">
+          Original transformer: <strong>4×</strong> hidden size.<br>
+          With SwiGLU (two matrices): <strong>~2.67×</strong> to keep total params the same.<br>
+          Rule: <code>ffn_dim = (8/3) * d_model</code>, rounded to a nice multiple.
+        </div>
+      </div>
+
+      <div class="card highlight">
+        <div class="card-q">How many heads?</div>
+        <div class="card-a">
+          Typically <code>d_model / 64</code> — each head gets 64 dims.<br>
+          Yes, <strong>num_heads must divide d_model</strong> exactly (head_dim = d_model / num_heads).<br>
+          Modern models often use GQA: fewer KV heads than Q heads to save memory.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-q">Vocab size?</div>
+        <div class="card-a">
+          Typically <strong>32k–100k</strong> tokens (GPT-2: 50k, LLaMA: 32k, Gemma: 256k).<br>
+          Larger vocab → shorter sequences, but bigger embedding table.<br>
+          Balance: ~100 tokens per parameter in the embedding layer.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-q">Do people regularize huge LMs?</div>
+        <div class="card-a">
+          Almost <strong>no dropout</strong> — large models don't overfit in the classical sense (they're undertrained).<br>
+          Still use: <strong>weight decay</strong> (~0.1) and <strong>gradient clipping</strong> (~1.0).
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-q">Deep vs wide?</div>
+        <div class="card-a">
+          Both matter, but <strong>depth scales better</strong> for reasoning and generalisation.<br>
+          Chinchilla scaling laws: balance model size with compute budget.<br>
+          The ratio <code>d_model / n_layers</code> is called the <strong>aspect ratio</strong> — wider-per-layer vs more layers. Typical value: ~128.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>

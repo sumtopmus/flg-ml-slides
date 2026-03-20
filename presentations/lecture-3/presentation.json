@@ -8,13 +8,14 @@
   "theme": "eclipse",
   "slides": [
     { "file": "slide-01.html", "title": "Title", "transition": "fade" },
-    { "file": "slide-02.html", "title": "Layer Norm", "transition": "slide-left" },
-    { "file": "slide-03.html", "title": "Activations & GLU", "transition": "slide-left" },
+    { "file": "slide-01b.html", "title": "What's New in 2026?", "transition": "slide-left" },
+    { "file": "slide-01c.html", "title": "RMS Norm", "transition": "slide-left" },
+    { "file": "slide-01d.html", "title": "SwiGLU", "transition": "slide-left" },
+    { "file": "slide-01e.html", "title": "RoPE", "transition": "slide-left" },
     { "file": "slide-04.html", "title": "Serial vs Parallel Layers", "transition": "slide-left" },
-    { "file": "slide-05.html", "title": "Positional Embeddings (RoPE)", "transition": "slide-left" },
-    { "file": "slide-06.html", "title": "Hyperparameters", "transition": "slide-left" },
-    { "file": "slide-07.html", "title": "Regularization", "transition": "slide-left" },
-    { "file": "slide-08.html", "title": "Stability Tricks", "transition": "slide-left" },
-    { "file": "slide-09.html", "title": "Attention Heads", "transition": "slide-left" }
+    { "file": "slide-08b.html", "title": "Hyperparameters", "transition": "fade" },
+    { "file": "slide-08c.html", "title": "Hyperparameter Questions", "transition": "slide-left" },
+    { "file": "slide-08d.html", "title": "Hyperparameter Answers", "transition": "slide-left" },
+    { "file": "slide-08e.html", "title": "Stability Tricks", "transition": "fade" }
   ]
 }

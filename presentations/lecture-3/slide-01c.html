@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RMS Norm</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 4rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--theme-color);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .slide-title span { color: var(--theme-accent); }
+
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.45s ease 0.1s, transform 0.45s ease 0.1s;
+    }
+
+    .compare-box {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 12px;
+      padding: 1.5rem 1.8rem;
+    }
+
+    .compare-box.highlight { border-color: var(--theme-accent); }
+
+    .compare-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 1rem;
+    }
+
+    .compare-box.highlight .compare-label { color: var(--theme-accent); }
+
+    .formula {
+      font-family: monospace;
+      font-size: 1.05rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.8;
+    }
+
+    .formula .accent { color: var(--theme-accent); font-weight: 600; }
+    .formula .muted  { color: var(--theme-color-muted); font-size: 0.88em; }
+
+    .why {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease 0.25s, transform 0.45s ease 0.25s;
+    }
+
+    .why-card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+    }
+
+    .why-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--theme-accent);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .why-body {
+      font-size: 0.9rem;
+      color: var(--theme-color-muted);
+      line-height: 1.55;
+    }
+
+    .shown .slide-title,
+    .shown .compare,
+    .shown .why { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="slide-title">RMS <span>Norm</span></div>
+
+    <div class="compare">
+      <div class="compare-box">
+        <div class="compare-label">Layer Norm (original)</div>
+        <div class="formula">
+          μ = mean(x)<br>
+          σ² = var(x)<br>
+          <span class="accent">y = (x − μ) / √(σ² + ε) · γ + β</span><br>
+          <span class="muted">— centers AND scales</span>
+        </div>
+      </div>
+      <div class="compare-box highlight">
+        <div class="compare-label">RMS Norm (modern)</div>
+        <div class="formula">
+          RMS(x) = √( mean(x²) )<br>
+          <br>
+          <span class="accent">y = x / RMS(x) · γ</span><br>
+          <span class="muted">— scales only, no mean-centering</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="why">
+      <div class="why-card">
+        <div class="why-title">Simpler</div>
+        <div class="why-body">Removes mean subtraction and the β bias term — fewer operations per forward pass.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-title">Faster</div>
+        <div class="why-body">LayerNorm needs two statistics: mean(x) then variance. RMSNorm only needs mean(x²) — one pass, no mean-centering step.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-title">Same quality</div>
+        <div class="why-body">Empirically matches LayerNorm on large LLMs. Used in LLaMA, Mistral, Gemma, and most modern models.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>
