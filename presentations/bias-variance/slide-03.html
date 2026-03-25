@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bias–Variance Tradeoff — Interactive</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.4rem 3rem;
+      gap: 0.8rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #fb923c;
+      padding: 0.35rem 1rem;
+      border: 2px solid #fb923c;
+      border-radius: 99px;
+      background: rgba(251, 146, 60, 0.12);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.4rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .subtitle {
+      font-size: 0.82rem;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.7rem;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease 0.14s, transform 0.4s ease 0.14s;
+    }
+
+    .subtitle code {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--theme-color-secondary);
+      font-size: 0.78rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease 0.22s, transform 0.4s ease 0.22s;
+    }
+
+    .ctrl-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      padding: 0.35rem 0.8rem;
+      border-radius: 7px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .ctrl-btn:hover { background: rgba(255,255,255,0.12); }
+
+    .ctrl-btn.active {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    .legend-hint {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.25);
+      font-family: monospace;
+      margin-left: 0.4rem;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9rem;
+    }
+
+    .panel {
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      background: var(--theme-surface);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s, background 0.3s;
+    }
+
+    .panel:hover {
+      transform: translateY(-2px) !important;
+    }
+
+    .panel-top {
+      padding: 0.7rem 0.9rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .panel-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel-icon { font-size: 1.15rem; }
+
+    .panel-label-col {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    .panel-name {
+      font-size: 0.75rem;
+      color: var(--theme-color-muted);
+      margin-left: 0.3rem;
+    }
+
+    .panel-tag-line {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      font-style: italic;
+      margin-top: 1px;
+    }
+
+    .verdict {
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .chart-wrap {
+      padding: 0.25rem 0.5rem 0;
+    }
+
+    .chart-wrap svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .bars {
+      padding: 0.15rem 0.9rem 0;
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .bar-label {
+      width: 2.5rem;
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.4);
+      font-family: monospace;
+      text-align: right;
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    .bar-value {
+      width: 2.8rem;
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.6);
+      font-family: monospace;
+    }
+
+    .panel-desc {
+      padding: 0.4rem 0.9rem 0.7rem;
+      font-size: 0.68rem;
+      line-height: 1.55;
+      color: rgba(255,255,255,0.35);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 0.35rem;
+    }
+
+    .visible .eyebrow              { opacity: 1; transform: translateY(0); }
+    .visible h2                    { opacity: 1; transform: translateY(0); }
+    .visible .subtitle             { opacity: 1; transform: translateY(0); }
+    .visible .controls             { opacity: 1; transform: translateY(0); }
+    .visible .panel                { opacity: 1; transform: translateY(0); }
+    .visible .panel:nth-child(1)   { transition-delay: 0.15s; }
+    .visible .panel:nth-child(2)   { transition-delay: 0.25s; }
+    .visible .panel:nth-child(3)   { transition-delay: 0.35s; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+    <div class="eyebrow"><span>⚡</span><span>Warm-up Challenge</span></div>
+    <h2>Three models, one decision</h2>
+
+    <div class="controls">
+      <button class="ctrl-btn" id="resampleBtn">↻ Resample</button>
+      <button class="ctrl-btn" id="testBtn">○ Test Points</button>
+      <span class="legend-hint">┄┄ true sin(x)</span>
+    </div>
+
+    <div class="panels" id="panels"></div>
+  </div>
+
+  <script>
+    // ── PRNG ──
+    function mulberry32(a) {
+      return function () {
+        a |= 0; a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    // ── Data generation ──
+    function generateData(seed, n = 30) {
+      const rng = mulberry32(seed);
+      const train = [], test = [];
+      for (let i = 0; i < n; i++) {
+        const x = (i / (n - 1)) * 2 * Math.PI;
+        const y = Math.sin(x) + (rng() - 0.5) * 0.6;
+        train.push({ x, y });
+      }
+      for (let i = 0; i < 15; i++) {
+        const x = rng() * 2 * Math.PI;
+        const y = Math.sin(x) + (rng() - 0.5) * 0.6;
+        test.push({ x, y });
+      }
+      return { train, test };
+    }
+
+    // ── Polynomial fitting (normal equations with partial pivoting) ──
+    function polyFit(points, degree) {
+      const n = points.length, cols = degree + 1;
+      const X = points.map(p => {
+        const row = [];
+        for (let d = 0; d <= degree; d++) row.push(Math.pow(p.x, d));
+        return row;
+      });
+      const y = points.map(p => p.y);
+      const XtX = Array.from({ length: cols }, () => new Array(cols).fill(0));
+      const Xty = new Array(cols).fill(0);
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < cols; j++)
+          for (let k = 0; k < n; k++) XtX[i][j] += X[k][i] * X[k][j];
+        for (let k = 0; k < n; k++) Xty[i] += X[k][i] * y[k];
+      }
+      const lambda = degree > 10 ? 1e-8 : 1e-12;
+      for (let i = 0; i < cols; i++) XtX[i][i] += lambda;
+      const aug = XtX.map((row, i) => [...row, Xty[i]]);
+      for (let i = 0; i < cols; i++) {
+        let maxRow = i;
+        for (let k = i + 1; k < cols; k++)
+          if (Math.abs(aug[k][i]) > Math.abs(aug[maxRow][i])) maxRow = k;
+        [aug[i], aug[maxRow]] = [aug[maxRow], aug[i]];
+        if (Math.abs(aug[i][i]) < 1e-14) continue;
+        for (let k = i + 1; k < cols; k++) {
+          const f = aug[k][i] / aug[i][i];
+          for (let j = i; j <= cols; j++) aug[k][j] -= f * aug[i][j];
+        }
+      }
+      const coeffs = new Array(cols).fill(0);
+      for (let i = cols - 1; i >= 0; i--) {
+        coeffs[i] = aug[i][cols];
+        for (let j = i + 1; j < cols; j++) coeffs[i] -= aug[i][j] * coeffs[j];
+        coeffs[i] /= aug[i][i];
+      }
+      return coeffs;
+    }
+
+    function polyEval(coeffs, x) {
+      let v = 0;
+      for (let i = 0; i < coeffs.length; i++) v += coeffs[i] * Math.pow(x, i);
+      return v;
+    }
+
+    function mse(coeffs, pts) {
+      return pts.reduce((s, p) => s + Math.pow(p.y - polyEval(coeffs, p.x), 2), 0) / pts.length;
+    }
+
+    function makeCurve(coeffs, xMin, xMax, steps = 200) {
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const x = xMin + (i / steps) * (xMax - xMin);
+        pts.push({ x, y: Math.max(-3, Math.min(3, polyEval(coeffs, x))) });
+      }
+      return pts;
+    }
+
+    // ── SVG chart helpers ──
+    const CW = 380, CH = 220;
+    const PAD = { t: 16, r: 14, b: 24, l: 32 };
+    const PW = CW - PAD.l - PAD.r, PH = CH - PAD.t - PAD.b;
+    const xRange = [0, 2 * Math.PI], yRange = [-2, 2];
+    const sx = x => PAD.l + ((x - xRange[0]) / (xRange[1] - xRange[0])) * PW;
+    const sy = y => PAD.t + PH - ((y - yRange[0]) / (yRange[1] - yRange[0])) * PH;
+
+    // ── Model definitions ──
+    const MODELS = [
+      { deg: 1,  label: 'A', name: 'Linear',    col: '#f87171', icon: '📏', verd: 'UNDERFITTING',
+        desc: 'High bias — the line can\'t capture the wave. Stable predictions, but systematically wrong everywhere.' },
+      { deg: 4,  label: 'B', name: 'Degree 4',  col: '#4ade80', icon: '🎯', verd: 'GOOD FIT',
+        desc: 'Balanced complexity — captures the sinusoidal shape without memorizing noise. Train and test errors stay close.' },
+      { deg: 15, label: 'C', name: 'Degree 15', col: '#fbbf24', icon: '🎢', verd: 'OVERFITTING',
+        desc: 'High variance — memorizes every noisy point. Near-perfect on training data, catastrophic on anything new.' },
+    ];
+
+    let seed = 42;
+    let showTest = false;
+
+    function buildSVG(curve, train, test, color) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', `0 0 ${CW} ${CH}`);
+
+      for (const v of [-1, 0, 1]) {
+        const line = document.createElementNS(ns, 'line');
+        line.setAttribute('x1', PAD.l); line.setAttribute('x2', CW - PAD.r);
+        line.setAttribute('y1', sy(v)); line.setAttribute('y2', sy(v));
+        line.setAttribute('stroke', 'rgba(255,255,255,0.05)');
+        svg.appendChild(line);
+        const txt = document.createElementNS(ns, 'text');
+        txt.setAttribute('x', PAD.l - 5); txt.setAttribute('y', sy(v) + 3);
+        txt.setAttribute('text-anchor', 'end');
+        txt.setAttribute('fill', 'rgba(255,255,255,0.25)');
+        txt.setAttribute('font-size', '8.5'); txt.setAttribute('font-family', 'monospace');
+        txt.textContent = v;
+        svg.appendChild(txt);
+      }
+
+      let sinPath = '';
+      for (let i = 0; i <= 200; i++) {
+        const x = xRange[0] + (i / 200) * (xRange[1] - xRange[0]);
+        sinPath += `${i ? 'L' : 'M'}${sx(x).toFixed(1)},${sy(Math.sin(x)).toFixed(1)}`;
+      }
+      const sinEl = document.createElementNS(ns, 'path');
+      sinEl.setAttribute('d', sinPath);
+      sinEl.setAttribute('fill', 'none');
+      sinEl.setAttribute('stroke', 'rgba(255,255,255,0.08)');
+      sinEl.setAttribute('stroke-width', '1.5');
+      sinEl.setAttribute('stroke-dasharray', '4 3');
+      svg.appendChild(sinEl);
+
+      let curvePath = '';
+      curve.forEach((p, i) => {
+        curvePath += `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)},${sy(p.y).toFixed(1)}`;
+      });
+      const curveEl = document.createElementNS(ns, 'path');
+      curveEl.setAttribute('d', curvePath);
+      curveEl.setAttribute('fill', 'none');
+      curveEl.setAttribute('stroke', color);
+      curveEl.setAttribute('stroke-width', '2.5');
+      curveEl.setAttribute('stroke-linecap', 'round');
+      curveEl.setAttribute('opacity', '0.9');
+      svg.appendChild(curveEl);
+
+      train.forEach(p => {
+        const c = document.createElementNS(ns, 'circle');
+        c.setAttribute('cx', sx(p.x)); c.setAttribute('cy', sy(p.y));
+        c.setAttribute('r', '3.2');
+        c.setAttribute('fill', 'rgba(255,255,255,0.75)');
+        c.setAttribute('stroke', 'rgba(0,0,0,0.4)');
+        c.setAttribute('stroke-width', '0.5');
+        svg.appendChild(c);
+      });
+
+      if (showTest) {
+        test.forEach(p => {
+          const glow = document.createElementNS(ns, 'circle');
+          glow.setAttribute('cx', sx(p.x)); glow.setAttribute('cy', sy(p.y));
+          glow.setAttribute('r', '5');
+          glow.setAttribute('fill', color); glow.setAttribute('opacity', '0.15');
+          svg.appendChild(glow);
+          const c = document.createElementNS(ns, 'circle');
+          c.setAttribute('cx', sx(p.x)); c.setAttribute('cy', sy(p.y));
+          c.setAttribute('r', '3.2');
+          c.setAttribute('fill', color);
+          c.setAttribute('stroke', 'white'); c.setAttribute('stroke-width', '0.8');
+          c.setAttribute('opacity', '0.9');
+          svg.appendChild(c);
+        });
+      }
+
+      return svg;
+    }
+
+    function render() {
+      const { train, test } = generateData(seed);
+      const fits = MODELS.map(m => {
+        const c = polyFit(train, m.deg);
+        return { ...m, curve: makeCurve(c, xRange[0], xRange[1]), trE: mse(c, train), teE: mse(c, test) };
+      });
+      const maxE = Math.max(...fits.map(f => Math.max(f.trE, f.teE)), 0.5);
+
+      const container = document.getElementById('panels');
+      container.innerHTML = '';
+
+      fits.forEach(f => {
+        const panel = document.createElement('div');
+        panel.className = 'panel';
+
+        const barColor = col => showTest ? col : 'rgba(255,255,255,0.15)';
+
+        panel.innerHTML = `
+          <div class="panel-top">
+            <div class="panel-info">
+              <span class="panel-icon">${f.icon}</span>
+              <div>
+                <div>
+                  <span class="panel-label-col" style="color:${f.col}">${f.label}</span>
+                  <span class="panel-name">${f.name}</span>
+                </div>
+                <div class="panel-tag-line">degree ${f.deg}</div>
+              </div>
+            </div>
+            <div class="verdict" style="color:${f.col};background:${f.col}15">${f.verd}</div>
+          </div>
+          <div class="chart-wrap" id="chart-${f.label}"></div>
+          <div class="bars">
+            <div class="bar-row">
+              <span class="bar-label">Train</span>
+              <div class="bar-track"><div class="bar-fill" style="width:${Math.min(f.trE / maxE * 100, 100)}%;background:${f.col}"></div></div>
+              <span class="bar-value">${f.trE.toFixed(3)}</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">Test</span>
+              <div class="bar-track"><div class="bar-fill" style="width:${Math.min(f.teE / maxE * 100, 100)}%;background:${barColor(f.col)}"></div></div>
+              <span class="bar-value">${f.teE.toFixed(3)}</span>
+            </div>
+          </div>
+          <div class="panel-desc">${f.desc}</div>
+        `;
+
+        container.appendChild(panel);
+        document.getElementById(`chart-${f.label}`).appendChild(
+          buildSVG(f.curve, train, test, f.col)
+        );
+      });
+
+      try {
+        localStorage.setItem('bv-metrics', JSON.stringify(
+          fits.map(f => ({ label: f.label, trE: f.trE, teE: f.teE }))
+        ));
+      } catch (_) {}
+
+      const content = document.getElementById('content');
+      if (content.classList.contains('visible')) {
+        container.querySelectorAll('.panel').forEach(p => {
+          p.style.opacity = '1';
+          p.style.transform = 'translateY(0)';
+        });
+      }
+    }
+
+    document.getElementById('resampleBtn').addEventListener('click', () => {
+      seed++;
+      render();
+    });
+    document.getElementById('testBtn').addEventListener('click', () => {
+      showTest = !showTest;
+      const btn = document.getElementById('testBtn');
+      btn.textContent = showTest ? '◉ Test Points' : '○ Test Points';
+      btn.classList.toggle('active', showTest);
+      render();
+    });
+
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible');
+        render();
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible');
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>

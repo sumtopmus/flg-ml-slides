@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Approximating 𝔼<sub>D</sub>[·] — four approaches</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .approach-card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+    }
+
+    .approach-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-bootstrap  { background: rgba(99,102,241,0.2);  color: var(--theme-accent); }
+    .badge-cv         { background: rgba(52,211,153,0.2);  color: #34d399; }
+    .badge-sim        { background: rgba(251,191,36,0.2);  color: #fbbf24; }
+    .badge-analytical { background: rgba(248,113,113,0.2); color: #f87171; }
+
+    .approach-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--theme-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .approach-body {
+      font-size: 0.8rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.6;
+    }
+
+    .approach-body ol, .approach-body ul {
+      padding-left: 1.2rem;
+      margin: 0.3rem 0 0;
+    }
+
+    .approach-body li { margin-bottom: 0.2rem; }
+
+    .visible .eyebrow  { opacity: 1; transform: translateY(0); }
+    .visible h2        { opacity: 1; transform: translateY(0); }
+    .visible .two-col  { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 4 — Estimation &amp; Practice</div>
+    <h2>Approximating 𝔼<sub>D</sub>[·] — four approaches</h2>
+
+    <div class="two-col">
+
+      <div class="approach-card">
+        <div class="approach-badge badge-bootstrap">Bootstrap</div>
+        <div class="approach-title">Resample to simulate 𝔼<sub>D</sub>[·]</div>
+        <div class="approach-body">
+          <ol>
+            <li>Draw B bootstrap samples ≈ different datasets D.</li>
+            <li>Fit model on each: f̂₁(x)…f̂<sub>B</sub>(x).</li>
+            <li>Bias of f̂<sub>b</sub> ≈ 𝔼<sub>D</sub>[f̂<sub>D</sub>]; Variance of f̂<sub>b</sub> ≈ Var[f̂].</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="approach-card">
+        <div class="approach-badge badge-cv">Cross-Validation</div>
+        <div class="approach-title">Estimates MSE</div>
+        <div class="approach-body">
+          <ul>
+            <li>CV estimates total MSE = Bias² + Var + noise.</li>
+            <li>Each fold is like a mini-simulation of "what if I had a somewhat different training set."</li>
+            <li>You just select "which model has the lowest total error." <br/>
+              A model with too much bias or too much variance will score poorly.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="approach-card">
+        <div class="approach-badge badge-sim">Simulation</div>
+        <div class="approach-title">Compute 𝔼<sub>D</sub>[·] exactly</div>
+        <div class="approach-body">
+          Only possible when true f(x) is known.<br>
+          Generate M datasets; fit on each; predict at fixed x*.<br/>
+          Sample mean → 𝔼<sub>D</sub>[f̂]; sample variance → Var[f̂].
+        </div>
+      </div>
+
+      <div class="approach-card">
+        <div class="approach-badge badge-analytical">Analytical</div>
+        <div class="approach-title">Known formulas for some models</div>
+        <div class="approach-body">
+          Linear models: 𝔼<sub>D</sub>[·] is tractable in closed form.<br>
+          Estimate σ² = RSS/(n−p) from residuals.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

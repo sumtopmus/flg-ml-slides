@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnosing your model — which term dominates?</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .diag-card {
+      border-radius: 10px;
+      padding: 1.4rem;
+    }
+
+    .diag-card.bias {
+      background: rgba(248,113,113,0.08);
+      border: 1px solid rgba(248,113,113,0.3);
+    }
+
+    .diag-card.variance {
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.3);
+    }
+
+    .diag-header {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid;
+    }
+
+    .diag-card.bias .diag-header     { color: #f87171; border-color: rgba(248,113,113,0.25); }
+    .diag-card.variance .diag-header { color: #fbbf24; border-color: rgba(251,191,36,0.25); }
+
+    .symptoms-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .symptom-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .symptom-list li {
+      font-size: 0.85rem;
+      color: var(--theme-color-secondary);
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+
+    .bullet {
+      font-size: 0.6rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .diag-card.bias .bullet     { color: #f87171; }
+    .diag-card.variance .bullet { color: #fbbf24; }
+
+    .visible .eyebrow  { opacity: 1; transform: translateY(0); }
+    .visible h2        { opacity: 1; transform: translateY(0); }
+    .visible .two-col  { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 4 — Estimation &amp; Practice</div>
+    <h2>Diagnosing your model — which term dominates?</h2>
+
+    <div class="two-col">
+
+      <div class="diag-card bias">
+        <div class="diag-header">Bias² Dominates (underfitting)</div>
+        <div class="symptoms-label">Symptoms</div>
+        <ul class="symptom-list">
+          <li><span class="bullet">•</span> Training error is high</li>
+          <li><span class="bullet">•</span> Test error similarly high — small gap</li>
+          <li><span class="bullet">•</span> Learning curves plateau early</li>
+        </ul>
+      </div>
+
+      <div class="diag-card variance">
+        <div class="diag-header">Variance Dominates (overfitting)</div>
+        <div class="symptoms-label">Symptoms</div>
+        <ul class="symptom-list">
+          <li><span class="bullet">•</span> Training error very low</li>
+          <li><span class="bullet">•</span> Test error much higher — large gap</li>
+          <li><span class="bullet">•</span> Performance varies across splits</li>
+          <li><span class="bullet">•</span> More data helps</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

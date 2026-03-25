@@ -84,7 +84,7 @@ function loadSlide(index: number, direction: 'forward' | 'backward' | 'initial' 
   const iframe = document.createElement('iframe')
   iframe.src = src
   iframe.title = slide.title ?? `Slide ${index + 1}`
-  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-modals')
+  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-modals allow-popups allow-popups-to-escape-sandbox')
 
   // Keep hidden while loading — prevents the white blank document from being
   // revealed by the fade-in animation before content is ready.

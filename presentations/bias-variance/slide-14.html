@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What the theorem implies: there is a sweet spot</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .col-card {
+      border-radius: 10px;
+      padding: 1.4rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .col-card.underfit {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.35);
+    }
+
+    .col-card.sweetspot {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.35);
+    }
+
+    .col-card.overfit {
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.35);
+    }
+
+    .col-header {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-align: center;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid;
+    }
+
+    .col-card.underfit .col-header  { color: #f87171; border-color: rgba(239,68,68,0.3); }
+    .col-card.sweetspot .col-header { color: #4ade80; border-color: rgba(34,197,94,0.3); }
+    .col-card.overfit .col-header   { color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+
+    .col-item {
+      font-size: 0.88rem;
+      color: var(--theme-color-secondary);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .col-item strong { color: var(--theme-color); }
+
+    .col-card.underfit .col-item .hl  { color: #f87171; font-weight: 700; }
+    .col-card.sweetspot .col-item .hl { color: #4ade80; font-weight: 700; }
+    .col-card.overfit .col-item .hl   { color: #fbbf24; font-weight: 700; }
+
+    .axis-bar {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 0.7rem 1.2rem;
+      text-align: center;
+      font-size: 0.88rem;
+      color: var(--theme-color-secondary);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease 0.45s, transform 0.4s ease 0.45s;
+    }
+
+    .axis-bar .arrow { color: var(--theme-accent); font-weight: 700; }
+
+    .visible .eyebrow       { opacity: 1; transform: translateY(0); }
+    .visible h2             { opacity: 1; transform: translateY(0); }
+    .visible .compare-grid  { opacity: 1; transform: translateY(0); }
+    .visible .axis-bar      { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 3 — MSE Theorem</div>
+    <h2>What the theorem implies: there is a sweet spot</h2>
+
+    <div class="compare-grid">
+
+      <div class="col-card underfit">
+        <div class="col-header">Underfitting</div>
+        <div class="col-item"><span class="hl">High Bias</span></div>
+        <div class="col-item"><span class="hl">Low Variance</span></div><br/>
+        <div class="col-item">Bias² dominates</div><br/>
+        <div class="col-item">𝔼<sub>D</sub>[f̂] misses f(x)</div>
+      </div>
+
+      <div class="col-card sweetspot">
+        <div class="col-header">Sweet Spot</div>
+        <div class="col-item"><span class="hl">MSE minimised</span></div><br/><br/>
+        <div class="col-item">Bias² + Variance at minimum</div><br/>
+        <div class="col-item">Optimal complexity</div>
+        <div class="col-item">&nbsp;</div>
+      </div>
+
+      <div class="col-card overfit">
+        <div class="col-header">Overfitting</div>
+        <div class="col-item"><span class="hl">Low Bias</span></div>
+        <div class="col-item"><span class="hl">High Variance</span></div><br/>
+        <div class="col-item">Variance dominates</div><br/>
+        <div class="col-item">Scatter of f̂<sub>D</sub> is large</div>
+      </div>
+
+    </div>
+
+    <div class="axis-bar">
+      <span class="arrow">←</span> Simpler model &nbsp;&nbsp;&nbsp; Model complexity &nbsp;&nbsp;&nbsp; More complex <span class="arrow">→</span>
+    </div>
+
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

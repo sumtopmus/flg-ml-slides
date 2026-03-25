@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Variance</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .formula-block {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-left: 3px solid var(--theme-accent);
+      border-radius: 10px;
+      padding: 1rem 1.8rem;
+      font-size: clamp(1rem, 2.2vw, 1.45rem);
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.14s, transform 0.5s ease 0.14s;
+    }
+
+    .accent { color: var(--theme-accent); }
+    .alt    { color: var(--theme-accent-alt); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .notation-col, .explain-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .notation-block {
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      background: var(--theme-surface);
+      padding: 0.75rem 1rem;
+    }
+
+    .notation-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .notation-formula {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin-bottom: 0.3rem;
+    }
+
+    .notation-comment {
+      font-size: 0.78rem;
+      color: var(--theme-color-muted);
+      line-height: 1.5;
+    }
+
+    .notation-comment .hash {
+      color: var(--theme-accent);
+      font-weight: 600;
+      margin-right: 0.2em;
+    }
+
+    .explain-card {
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      background: var(--theme-surface);
+      padding: 0.75rem 1rem;
+    }
+
+    .explain-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--theme-accent-alt);
+      margin-bottom: 0.35rem;
+    }
+
+    .explain-text {
+      font-size: 0.83rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.6;
+    }
+
+    .explain-text strong { color: var(--theme-color); }
+
+    .visible .eyebrow       { opacity: 1; transform: translateY(0); }
+    .visible h2             { opacity: 1; transform: translateY(0); }
+    .visible .formula-block { opacity: 1; transform: translateY(0); }
+    .visible .two-col       { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 2 — Bias &amp; Variance › Variance</div>
+    <h2>Variance</h2>
+
+    <div class="formula-block">
+      <span class="accent">Var</span>[<span class="alt">f̂(x)</span>]
+      &nbsp;=&nbsp;
+      𝔼<sub>D</sub>[(<span class="alt">f̂<sub>D</sub>(x)</span>
+      &minus; 𝔼<sub>D</sub>[<span class="alt">f̂<sub>D</sub>(x)</span>])²]
+      &nbsp;&nbsp;
+      <span style="font-size:0.75em; font-weight:400; color:var(--theme-color-muted);">
+        # This is just 𝔼[(· − its own mean)²].
+      </span>
+    </div>
+
+    <div class="two-col">
+
+      <div class="notation-col">
+
+        <div class="notation-block">
+          <div class="notation-label">True process</div>
+          <div class="notation-formula">Y = f(x) + ε,&nbsp; 𝔼[ε|X] = 0</div>
+          <div class="notation-comment">
+            <span class="hash">#</span>f(x) = the true value we want to predict<br>
+            <span class="hash">#</span>ε — irreducible error; no model can predict it.
+          </div>
+        </div>
+
+        <div class="notation-block">
+          <div class="notation-label">One training set</div>
+          <div class="notation-formula">D = {(x₁,y₁), …, (xₙ,yₙ)}</div>
+        </div>
+
+        <div class="notation-block">
+          <div class="notation-label">Fitted model</div>
+          <div class="notation-formula">f̂<sub>D</sub>(x) — depends on D</div>
+          <div class="notation-comment">
+            <span class="hash">#</span>Each draw of D gives a different fitted model
+          </div>
+        </div>
+
+        <div class="notation-block">
+          <div class="notation-label">Expectation</div>
+          <div class="notation-formula">𝔼<sub>D</sub>[f̂(x)] = avg prediction across all possible D</div>
+          <div class="notation-comment">
+            <span class="hash">#</span>Averages over the randomness of the training set itself
+            (imagine rerunning the world)
+          </div>
+        </div>
+
+      </div>
+
+      <div class="explain-col">
+
+        <div class="explain-card">
+          <div class="explain-title">What it means</div>
+          <div class="explain-text">
+            If you retrained on a different sample, how much would predictions move?
+            <strong>Variance measures that scatter.</strong>
+          </div>
+        </div>
+
+        <div class="explain-card">
+          <div class="explain-title">What causes it</div>
+          <div class="explain-text">
+            <strong>Model too sensitive to its training set</strong> —
+            high-degree polynomials, unpruned trees, k=1 nearest neighbour.
+          </div>
+        </div>
+
+        <div class="explain-card">
+          <div class="explain-title">What doesn't cause it</div>
+          <div class="explain-text">
+            Variance is about <strong>instability across datasets</strong>, not being wrong on average.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

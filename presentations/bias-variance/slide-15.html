@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What the theorem implies: there is a sweet spot</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .main-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.4rem;
+      align-items: start;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .canvas-wrap {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    canvas { display: block; border-radius: 8px; }
+
+    .legend-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      min-width: 220px;
+    }
+
+    .legend-item {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      padding: 0.6rem 0.8rem;
+    }
+
+    .legend-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .swatch { width: 20px; height: 3px; border-radius: 2px; }
+    .swatch.dashed { border-top: 2px dashed; background: transparent !important; }
+
+    .legend-desc {
+      font-size: 0.73rem;
+      color: var(--theme-color-muted);
+      line-height: 1.45;
+    }
+
+    .visible .eyebrow  { opacity: 1; transform: translateY(0); }
+    .visible h2        { opacity: 1; transform: translateY(0); }
+    .visible .main-row { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 3 — MSE Theorem</div>
+    <h2>What the theorem implies: there is a sweet spot</h2>
+
+    <div class="main-row">
+      <div class="canvas-wrap">
+        <canvas id="ucurveCanvas" width="540" height="300"></canvas>
+      </div>
+
+      <div class="legend-col">
+        <div class="legend-item">
+          <div class="legend-label">
+            <div class="swatch" style="background:#94a3b8;"></div>
+            Training Error
+          </div>
+          <div class="legend-desc">Always falls with complexity — model fits D better.</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label">
+            <div class="swatch" style="background:#818cf8;"></div>
+            Test Error = MSE
+          </div>
+          <div class="legend-desc">U-shaped. Minimum is the sweet spot.</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label">
+            <div class="swatch" style="background:#f87171;"></div>
+            Bias²
+          </div>
+          <div class="legend-desc">Falls with complexity.</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label">
+            <div class="swatch" style="background:#fbbf24;"></div>
+            Variance
+          </div>
+          <div class="legend-desc">Rises with complexity.</div>
+        </div>
+        <div class="legend-item">
+          <div class="legend-label">
+            <div class="swatch" style="background:#4ade80; border-style:dashed;"></div>
+            Sweet Spot
+          </div>
+          <div class="legend-desc">Minimum of test error (MSE).</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function drawUCurve() {
+      const canvas = document.getElementById('ucurveCanvas')
+      const ctx = canvas.getContext('2d')
+      const W = canvas.width, H = canvas.height
+      const pad = { left: 55, right: 20, top: 25, bottom: 45 }
+      const plotW = W - pad.left - pad.right
+      const plotH = H - pad.top - pad.bottom
+
+      ctx.clearRect(0, 0, W, H)
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+      ctx.lineWidth = 1
+      for (let i = 1; i < 5; i++) {
+        const y = pad.top + (plotH / 5) * i
+        ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + plotW, y); ctx.stroke()
+      }
+
+      const toX = t => pad.left + t * plotW
+      const toY = v => pad.top + plotH - v * plotH * 0.85
+
+      const bias2    = t => 0.9 * Math.exp(-3.5 * t) + 0.05
+      const variance = t => 0.05 + 0.85 * Math.pow(t, 2.2)
+      const trainErr = t => 0.8 * Math.exp(-4 * t) + 0.02
+      const sigma2   = 0.05
+      const testErr  = t => bias2(t) + variance(t) + sigma2
+
+      let minT = 0, minErr = Infinity
+      for (let i = 0; i <= 200; i++) {
+        const t = i / 200
+        const e = testErr(t)
+        if (e < minErr) { minErr = e; minT = t }
+      }
+
+      const curves = [
+        { fn: trainErr, color: '#94a3b8', width: 1.8 },
+        { fn: bias2,    color: '#f87171', width: 1.8 },
+        { fn: variance, color: '#fbbf24', width: 1.8 },
+        { fn: testErr,  color: '#818cf8', width: 2.4 },
+      ]
+
+      curves.forEach(c => {
+        ctx.beginPath()
+        ctx.strokeStyle = c.color
+        ctx.lineWidth = c.width
+        for (let i = 0; i <= 200; i++) {
+          const t = i / 200
+          const x = toX(t), y = toY(c.fn(t))
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+        }
+        ctx.stroke()
+      })
+
+      const sx = toX(minT)
+      ctx.beginPath()
+      ctx.strokeStyle = '#4ade80'
+      ctx.lineWidth = 1.5
+      ctx.setLineDash([4, 3])
+      ctx.moveTo(sx, pad.top); ctx.lineTo(sx, pad.top + plotH)
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      ctx.font = '10px sans-serif'
+      ctx.fillStyle = '#4ade80'
+      ctx.fillText('sweet spot', sx - 28, pad.top + 12)
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top + plotH)
+      ctx.moveTo(pad.left, pad.top + plotH); ctx.lineTo(pad.left + plotW, pad.top + plotH)
+      ctx.stroke()
+
+      ctx.font = '11px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,0.5)'
+      ctx.fillText('Error', pad.left - 42, pad.top + plotH / 2 + 4)
+      ctx.fillText('Model complexity →', pad.left + plotW / 2 - 55, pad.top + plotH + 34)
+
+      ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(248,113,113,0.7)'
+      ctx.fillText('← High Bias', pad.left + 5, pad.top + plotH - 8)
+      ctx.fillStyle = 'rgba(251,191,36,0.7)'
+      ctx.fillText('High Variance →', toX(0.75), pad.top + 12)
+    }
+
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+        setTimeout(drawUCurve, 300)
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+
+    drawUCurve()
+  </script>
+</body>
+</html>
