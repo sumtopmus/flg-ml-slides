@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperparameter Questions</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 4rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .section-header {
+      font-size: 1.1rem;
+      color: var(--theme-color);
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .section-header.second {
+      margin-top: 0.5rem;
+      transition-delay: 0s;
+    }
+
+    .questions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .question {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.9rem 1.2rem;
+      border-radius: 10px;
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .question.visible { opacity: 1; transform: none; }
+
+    .bullet {
+      color: var(--theme-accent);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .q-text {
+      font-size: 1rem;
+      color: var(--theme-color);
+      line-height: 1.45;
+    }
+
+    .shown .section-header { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="section-header" id="header1">Transformer hyperparameter questions you might have had:</div>
+
+    <div class="questions" id="group1">
+      <div class="question">
+        <span class="bullet">•</span>
+        <span class="q-text">How much bigger should the feedforward size be compared to hidden size?</span>
+      </div>
+      <div class="question">
+        <span class="bullet">•</span>
+        <span class="q-text">How many heads, and should num_heads always divide hidden size?</span>
+      </div>
+      <div class="question">
+        <span class="bullet">•</span>
+        <span class="q-text">What should my vocab size be?</span>
+      </div>
+    </div>
+
+    <div class="section-header second" id="header2">And other model setting questions</div>
+
+    <div class="questions" id="group2">
+      <div class="question">
+        <span class="bullet">•</span>
+        <span class="q-text">Do people even regularize these huge LMs?</span>
+      </div>
+      <div class="question">
+        <span class="bullet">•</span>
+        <span class="q-text">How do people scale these models — very deep or very wide?</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const steps = [
+      document.getElementById('header1'),
+      ...document.querySelectorAll('#group1 .question'),
+      document.getElementById('header2'),
+      ...document.querySelectorAll('#group2 .question'),
+    ]
+    let current = 0
+
+    function revealNext() {
+      if (current < steps.length) {
+        const el = steps[current]
+        el.classList.add('visible')
+        el.style.opacity = '1'
+        el.style.transform = 'none'
+        current++
+      }
+    }
+
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        current = 0
+        steps.forEach(el => {
+          el.classList.remove('visible')
+          el.style.opacity = ''
+          el.style.transform = ''
+        })
+        // headers use .shown class, questions use .visible
+        document.querySelector('.content').classList.remove('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+
+    window.addEventListener('click', revealNext)
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') && current < steps.length) {
+        e.stopPropagation()
+        revealNext()
+      }
+    }, true)
+  </script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Z-Loss</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; align-items: center; justify-content: center; padding: 2.5rem 4rem; }
+
+    .content {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1000px;
+      display: flex; flex-direction: column; gap: 2rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em; color: var(--theme-color);
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .slide-title span { color: var(--theme-accent); }
+
+    .main {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+    }
+
+    .formula-box {
+      background: var(--theme-surface); border: 1px solid var(--theme-accent);
+      border-radius: 12px; padding: 1.5rem 1.8rem;
+      display: flex; flex-direction: column; gap: 0.8rem;
+    }
+    .formula-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--theme-accent); }
+    .formula {
+      font-family: monospace; font-size: 1.3rem; color: var(--theme-color-secondary); line-height: 1.8;
+    }
+    .formula .accent { color: var(--theme-accent); font-weight: 700; }
+    .formula-note { font-size: 0.85rem; color: var(--theme-color-muted); line-height: 1.55; }
+
+    .explain {
+      display: flex; flex-direction: column; gap: 0.9rem;
+    }
+    .explain-item {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 0.9rem 1.2rem;
+    }
+    .explain-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--theme-accent); margin-bottom: 0.3rem; }
+    .explain-body  { font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.5; }
+    .explain-body strong { color: var(--theme-color); }
+
+    .takeaway {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 1rem 1.4rem;
+      font-size: 0.95rem; color: var(--theme-color-muted); line-height: 1.6;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.4s ease 0.25s, transform 0.4s ease 0.25s;
+    }
+    .takeaway strong { color: var(--theme-color); }
+
+    .shown .slide-title, .shown .main, .shown .takeaway { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="slide-title">Z-<span>Loss</span></div>
+
+    <div class="main">
+      <div class="formula-box">
+        <div class="formula-label">Auxiliary loss term</div>
+        <div class="formula">
+          L<sub>z</sub> = <span class="accent">ε</span> · log²(<span class="accent">Z</span>)
+        </div>
+        <div class="formula-note">
+          Added to the main cross-entropy loss.<br>
+          ε is a small constant (e.g. 1e-4) — just a nudge, not a hard constraint.
+        </div>
+      </div>
+
+      <div class="explain">
+        <div class="explain-item">
+          <div class="explain-title">Why log²(Z)?</div>
+          <div class="explain-body">When Z = 1, log(Z) = 0 → <strong>zero penalty</strong>. When Z grows large, log²(Z) penalises it quadratically — strongly discouraging large partition functions.</div>
+        </div>
+        <div class="explain-item">
+          <div class="explain-title">Effect</div>
+          <div class="explain-body">The model learns to keep logits small so Z stays near 1. Softmax denominator stays well-behaved throughout training.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <strong>In practice:</strong> Z-loss adds almost zero compute overhead and significantly reduces loss spikes in large-scale training. Used in PaLM and other Google models.
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') document.querySelector('.content').classList.add('shown')
+      if (e.data?.type === 'slideExit')  document.querySelector('.content').classList.remove('shown')
+    })
+  </script>
+</body>
+</html>

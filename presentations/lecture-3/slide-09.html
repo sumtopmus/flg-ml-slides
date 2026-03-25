@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Softmax is the Problem</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; align-items: center; justify-content: center; padding: 2.5rem 4rem; }
+
+    .content {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1000px;
+      display: flex; flex-direction: column; gap: 2rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem; font-weight: 700; letter-spacing: -0.03em;
+      color: var(--theme-color);
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .slide-title span { color: var(--theme-accent); }
+
+    .formula-box {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-left: 4px solid var(--theme-accent);
+      border-radius: 10px; padding: 1.2rem 1.6rem;
+      font-family: monospace; font-size: 1.1rem;
+      color: var(--theme-color-secondary); line-height: 1.9;
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+    }
+    .formula-box .accent { color: var(--theme-accent); font-weight: 600; }
+    .formula-box .muted  { color: var(--theme-color-muted); font-size: 0.85em; }
+
+    .cards {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
+    }
+    .card {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 1.1rem 1.3rem;
+    }
+    .card.danger { border-color: #e05; }
+    .card-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--theme-accent); margin-bottom: 0.4rem; }
+    .card.danger .card-title { color: #e05; }
+    .card-body  { font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.55; }
+    .card-body strong { color: var(--theme-color); }
+
+    .shown .slide-title, .shown .formula-box, .shown .cards { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="slide-title">Softmax is the <span>Problem</span></div>
+
+    <div class="formula-box">
+      softmax(xᵢ) = exp(xᵢ) / <span class="accent">Z</span> &nbsp;&nbsp; where &nbsp;&nbsp; <span class="accent">Z</span> = Σ exp(xⱼ)<br>
+      <span class="muted">— Z is called the partition function</span>
+    </div>
+
+    <div class="cards">
+      <div class="card danger">
+        <div class="card-title">Large logits → overflow</div>
+        <div class="card-body">If any xᵢ is large, <strong>exp(xᵢ) overflows to ∞</strong>. The entire softmax becomes NaN.</div>
+      </div>
+      <div class="card danger">
+        <div class="card-title">Large Z → bad gradients</div>
+        <div class="card-body">When Z ≫ 1 the softmax is very flat. Gradients become <strong>tiny → vanishing gradient</strong>. Training stalls.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Goal: keep Z ≈ 1</div>
+        <div class="card-body">If Z stays close to 1, the distribution is well-normalised and gradients flow cleanly through the softmax.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') document.querySelector('.content').classList.add('shown')
+      if (e.data?.type === 'slideExit')  document.querySelector('.content').classList.remove('shown')
+    })
+  </script>
+</body>
+</html>

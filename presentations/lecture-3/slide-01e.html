@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoPE</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 3.5rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1300px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--theme-color);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .slide-title span { color: var(--theme-accent); }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--theme-color-muted);
+      margin-top: -1rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.45s ease 0.08s, transform 0.45s ease 0.08s;
+    }
+
+    .images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+    }
+
+    .img-card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .img-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
+
+    .img-caption {
+      font-size: 0.82rem;
+      color: var(--theme-color-muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .why {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.45s ease 0.3s, transform 0.45s ease 0.3s;
+    }
+
+    .why-card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+    }
+
+    .why-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--theme-accent);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .why-body {
+      font-size: 0.88rem;
+      color: var(--theme-color-muted);
+      line-height: 1.5;
+    }
+
+    .formula {
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--theme-color-secondary);
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-left: 3px solid var(--theme-accent);
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.45s ease 0.22s, transform 0.45s ease 0.22s;
+    }
+
+    .formula .accent { color: var(--theme-accent); font-weight: 600; }
+
+    .shown .slide-title,
+    .shown .subtitle,
+    .shown .images,
+    .shown .formula,
+    .shown .why { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="slide-title">Ro<span>PE</span> — Rotary Position Embedding</div>
+    <div class="subtitle">Instead of adding a position vector, rotate the Query and Key vectors by a position-dependent angle.</div>
+
+    <div class="images">
+      <div class="img-card">
+        <img src="Rope-1.png" alt="RoPE intuition: rotating word embeddings by position" />
+        <div class="img-caption">The same word at different positions gets rotated by a different angle — so attention scores naturally encode relative distance.</div>
+      </div>
+      <div class="img-card">
+        <img src="Rope-2.png" alt="RoPE applied to query/key pairs across dimensions" />
+        <div class="img-caption">Each pair of dimensions in Q/K is rotated by mθ where m is the position and θ is a fixed frequency. The dot product then depends on relative position only.</div>
+      </div>
+    </div>
+
+    <div class="formula">
+      q′ = <span class="accent">R(mθ)</span> · q &nbsp;&nbsp; k′ = <span class="accent">R(nθ)</span> · k &nbsp;&nbsp; → &nbsp;&nbsp; q′ᵀk′ = qᵀ <span class="accent">R((m−n)θ)</span> k &nbsp;&nbsp; <span style="color:var(--theme-color-muted)">// depends only on relative position m−n</span>
+    </div>
+
+    <div class="why">
+      <div class="why-card">
+        <div class="why-title">Relative positions</div>
+        <div class="why-body">Attention between tokens depends on their distance, not absolute index — better generalisation.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-title">No extra parameters</div>
+        <div class="why-body">Pure rotation — no learned embedding table. Works at any sequence length, including longer than training.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-title">Standard in LLMs</div>
+        <div class="why-body">Used in LLaMA, Mistral, Gemma, GPT-NeoX, and virtually every major open model since 2023.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>

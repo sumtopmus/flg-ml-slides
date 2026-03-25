@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperparameters</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1.4rem;
+    }
+
+    .section-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .divider {
+      width: 3rem;
+      height: 3px;
+      background: var(--theme-accent);
+      border-radius: 2px;
+      opacity: 0;
+      transform: scaleX(0);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+      transform-origin: center;
+    }
+
+    h1 {
+      font-size: clamp(3.5rem, 7vw, 6rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--theme-color);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease 0.15s, transform 0.5s ease 0.15s;
+    }
+
+    h1 span { color: var(--theme-accent); }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--theme-color-muted);
+      max-width: 540px;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.45s ease 0.28s, transform 0.45s ease 0.28s;
+    }
+
+    .topics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s ease 0.38s, transform 0.4s ease 0.38s;
+    }
+
+    .topic {
+      padding: 0.35rem 0.9rem;
+      border-radius: 20px;
+      border: 1px solid var(--theme-border);
+      background: var(--theme-surface);
+      font-size: 0.82rem;
+      color: var(--theme-color-muted);
+    }
+
+    .shown .section-label,
+    .shown .subtitle,
+    .shown h1,
+    .shown .topics { opacity: 1; transform: none; }
+
+    .shown .divider { opacity: 1; transform: scaleX(1); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="section-label">Next Block · CSS 366 Lecture 3</div>
+    <div class="divider"></div>
+    <h1>Hyper<span>parameters</span></h1>
+    <div class="subtitle">Choices that define the size and shape of a transformer — and how they affect capacity, speed, and memory.</div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+  </script>
+</body>
+</html>

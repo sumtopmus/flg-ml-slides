@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MQA and GQA</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; align-items: center; justify-content: center; padding: 2.5rem 4rem; }
+
+    .content {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1100px;
+      display: flex; flex-direction: column; gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--theme-color);
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .slide-title span { color: var(--theme-accent); }
+
+    .comparison {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+    }
+
+    .col {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 12px; padding: 1.3rem 1.4rem;
+      display: flex; flex-direction: column; gap: 0.9rem;
+    }
+    .col.highlight { border-color: var(--theme-accent); }
+
+    .col-title { font-size: 1rem; font-weight: 700; color: var(--theme-color); }
+    .col-sub   { font-size: 0.75rem; font-weight: 600; color: var(--theme-accent); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .heads-visual {
+      display: flex; flex-direction: column; gap: 0.3rem;
+    }
+    .head-row { display: flex; gap: 0.3rem; align-items: center; font-size: 0.78rem; color: var(--theme-color-muted); }
+    .head-row span { font-size: 0.72rem; }
+    .box {
+      width: 28px; height: 22px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 700; flex-shrink: 0;
+    }
+    .q-box { background: #dbeafe; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .k-box { background: #fef9c3; color: #92400e; border: 1px solid #fde68a; }
+    .v-box { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+
+    .col-body { font-size: 0.88rem; color: var(--theme-color-muted); line-height: 1.55; }
+    .col-body strong { color: var(--theme-color); }
+
+    .takeaway {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 1rem 1.4rem;
+      font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.6;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.4s ease 0.28s, transform 0.4s ease 0.28s;
+    }
+    .takeaway strong { color: var(--theme-color); }
+
+    .shown .slide-title, .shown .comparison, .shown .takeaway { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="slide-title">Multi-Query &amp; Grouped-Query <span>Attention</span></div>
+
+    <div class="comparison">
+      <!-- MHA -->
+      <div class="col">
+        <div class="col-sub">MHA</div>
+        <div class="col-title">Multi-Head Attention</div>
+        <div class="heads-visual">
+          <div class="head-row"><div class="box q-box">Q1</div><div class="box k-box">K1</div><div class="box v-box">V1</div></div>
+          <div class="head-row"><div class="box q-box">Q2</div><div class="box k-box">K2</div><div class="box v-box">V2</div></div>
+          <div class="head-row"><div class="box q-box">Q3</div><div class="box k-box">K3</div><div class="box v-box">V3</div></div>
+          <div class="head-row"><div class="box q-box">Q4</div><div class="box k-box">K4</div><div class="box v-box">V4</div></div>
+        </div>
+        <div class="col-body">Each head has its own <strong>K and V</strong>. Full KV cache — <strong>H × 2 × d</strong> per token.</div>
+      </div>
+
+      <!-- MQA -->
+      <div class="col highlight">
+        <div class="col-sub">MQA</div>
+        <div class="col-title">Multi-Query Attention</div>
+        <div class="heads-visual">
+          <div class="head-row"><div class="box q-box">Q1</div><div class="box k-box" style="opacity:0.3">K</div><div class="box v-box" style="opacity:0.3">V</div></div>
+          <div class="head-row"><div class="box q-box">Q2</div><span>↑ shared</span></div>
+          <div class="head-row"><div class="box q-box">Q3</div></div>
+          <div class="head-row"><div class="box q-box">Q4</div><div class="box k-box">K</div><div class="box v-box">V</div></div>
+        </div>
+        <div class="col-body"><strong>One K and V</strong> shared across all Q heads. KV cache shrinks by <strong>H×</strong>. Slightly lower quality.</div>
+      </div>
+
+      <!-- GQA -->
+      <div class="col highlight">
+        <div class="col-sub">GQA</div>
+        <div class="col-title">Grouped-Query Attention</div>
+        <div class="heads-visual">
+          <div class="head-row"><div class="box q-box">Q1</div><div class="box k-box">K₁</div><div class="box v-box">V₁</div></div>
+          <div class="head-row"><div class="box q-box">Q2</div><span style="font-size:0.72rem">↑ group 1</span></div>
+          <div class="head-row"><div class="box q-box">Q3</div><div class="box k-box">K₂</div><div class="box v-box">V₂</div></div>
+          <div class="head-row"><div class="box q-box">Q4</div><span style="font-size:0.72rem">↑ group 2</span></div>
+        </div>
+        <div class="col-body"><strong>G groups</strong> of Q heads share one K, V. Between MHA and MQA. <strong>Used in LLaMA 2/3, Mistral.</strong></div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <strong>Why it matters:</strong> The KV cache is the main memory bottleneck during inference. MQA/GQA reduce cache size proportionally to the number of KV heads, enabling longer contexts and larger batches on the same GPU.
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') document.querySelector('.content').classList.add('shown')
+      if (e.data?.type === 'slideExit')  document.querySelector('.content').classList.remove('shown')
+    })
+  </script>
+</body>
+</html>

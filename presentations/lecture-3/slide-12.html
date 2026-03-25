@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KV Cache</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; align-items: center; justify-content: center; padding: 2.5rem 4rem; }
+
+    .content {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1050px;
+      display: flex; flex-direction: column; gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--theme-color);
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .slide-title span { color: var(--theme-accent); }
+
+    .top { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+
+    .block {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 12px; padding: 1.3rem 1.5rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .block.highlight { border-color: var(--theme-accent); }
+    .block:nth-child(1) { transition-delay: 0.1s; }
+    .block:nth-child(2) { transition-delay: 0.2s; }
+
+    .block-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--theme-accent); }
+    .block-body  { font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.6; }
+    .block-body strong { color: var(--theme-color); }
+
+    .row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease 0.3s, transform 0.4s ease 0.3s;
+    }
+    .stat {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 1rem 1.2rem; text-align: center;
+    }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--theme-accent); margin-bottom: 0.3rem; font-family: monospace; }
+    .stat-label { font-size: 0.8rem; color: var(--theme-color-muted); line-height: 1.4; }
+
+    .shown .slide-title, .shown .block, .shown .row { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="slide-title">KV <span>Cache</span> &amp; Arithmetic Intensity</div>
+
+    <div class="top">
+      <div class="block">
+        <div class="block-title">The problem during inference</div>
+        <div class="block-body">
+          At every new token, attention needs <strong>K and V for all previous tokens</strong>.<br><br>
+          Without caching: recompute K = xWₖ and V = xWᵥ for every prior token on every step. Cost grows as O(n²).
+        </div>
+      </div>
+      <div class="block highlight">
+        <div class="block-title">KV Cache solution</div>
+        <div class="block-body">
+          <strong>Save K and V</strong> for all past tokens as they're computed.<br><br>
+          Each new token: compute K, V only for itself, then <strong>append to cache</strong> and read the rest.<br><br>
+          Total memory accesses reduced drastically — no recomputation.
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="stat">
+        <div class="stat-value">FLOPs / bytes</div>
+        <div class="stat-label"><strong>Arithmetic intensity</strong> — ratio of compute to memory reads. KV cache makes attention memory-bound: we read more than we compute.</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">2 · n_layers · d</div>
+        <div class="stat-label">KV cache size per token (K + V, all layers). Grows linearly with sequence length.</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">Bottleneck</div>
+        <div class="stat-label">Long context = huge cache. Memory becomes the constraint, not FLOPs. Motivates MQA and GQA.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') document.querySelector('.content').classList.add('shown')
+      if (e.data?.type === 'slideExit')  document.querySelector('.content').classList.remove('shown')
+    })
+  </script>
+</body>
+</html>
