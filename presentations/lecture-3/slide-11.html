@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attention Softmax and Soft-Capping</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { display: flex; align-items: center; justify-content: center; padding: 2.5rem 4rem; }
+
+    .content {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 1050px;
+      display: flex; flex-direction: column; gap: 1.8rem;
+    }
+
+    .slide-title {
+      font-size: 2.2rem; font-weight: 700; letter-spacing: -0.03em; color: var(--theme-color);
+      opacity: 0; transform: translateY(14px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .slide-title span { color: var(--theme-accent); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
+
+    .block {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 12px; padding: 1.3rem 1.5rem;
+      display: flex; flex-direction: column; gap: 0.7rem;
+      opacity: 0; transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .block.highlight { border-color: var(--theme-accent); }
+    .block:nth-child(1) { transition-delay: 0.1s; }
+    .block:nth-child(2) { transition-delay: 0.2s; }
+
+    .block-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--theme-accent); }
+    .block-body  { font-size: 0.92rem; color: var(--theme-color-muted); line-height: 1.6; }
+    .block-body strong { color: var(--theme-color); }
+
+    .formula {
+      font-family: monospace; font-size: 0.95rem; color: var(--theme-color-secondary);
+      background: rgba(0,0,0,0.04); padding: 0.5rem 0.8rem; border-radius: 6px;
+    }
+    .formula .accent { color: var(--theme-accent); font-weight: 600; }
+
+    .note {
+      background: var(--theme-surface); border: 1px solid var(--theme-border);
+      border-radius: 10px; padding: 1rem 1.4rem;
+      font-size: 0.9rem; color: var(--theme-color-muted); line-height: 1.6;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.4s ease 0.32s, transform 0.4s ease 0.32s;
+    }
+    .note strong { color: var(--theme-color); }
+
+    .shown .slide-title, .shown .block, .shown .note { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="slide-title">Fixing the <span>Softmax</span></div>
+
+    <div class="two-col">
+      <div class="block highlight">
+        <div class="block-title">Attention softmax is already safe</div>
+        <div class="block-body">
+          Before computing attention scores, we apply <strong>QK LayerNorm</strong> — normalise Q and K vectors directly.<br><br>
+          This bounds the dot products going into softmax, so the partition function Z can't explode in the attention layer.
+        </div>
+        <div class="formula">
+          scores = <span class="accent">norm</span>(Q) · <span class="accent">norm</span>(K)ᵀ / √d
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-title">Soft-capping the output logits</div>
+        <div class="block-body">
+          The <strong>final output logits</strong> (before the vocabulary softmax) can still grow large. We clamp them smoothly with tanh:<br>
+        </div>
+        <div class="formula">
+          logits = <span class="accent">soft_cap</span> · tanh(logits / <span class="accent">soft_cap</span>)
+        </div>
+        <div class="block-body">
+          Values are squashed to [−soft_cap, +soft_cap].<br>
+          tanh is smooth and differentiable — no gradient killed at the boundary.
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Why tanh and not just clipping?</strong> Hard clipping sets gradient = 0 beyond the cap, killing learning. tanh has a smooth gradient everywhere — large logits are suppressed but still trainable.
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') document.querySelector('.content').classList.add('shown')
+      if (e.data?.type === 'slideExit')  document.querySelector('.content').classList.remove('shown')
+    })
+  </script>
+</body>
+</html>

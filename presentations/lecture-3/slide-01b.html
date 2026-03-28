@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modern Transformer</title>
+  <link rel="stylesheet" href="../../themes/eclipse.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 4rem;
+      width: 100%;
+      max-width: 1400px;
+    }
+
+    .left {
+      flex: 0 0 auto;
+      opacity: 0;
+      transform: translateX(-24px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+
+    .left img {
+      height: 560px;
+      width: auto;
+    }
+
+    .right {
+      flex: 1;
+    }
+
+    .label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--theme-color);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+    }
+
+    .question-box {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.9rem;
+      padding: 1.1rem 1.3rem;
+      border-radius: 10px;
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.3s, transform 0.5s ease 0.3s;
+    }
+
+    .q-mark {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--theme-accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .q-text {
+      font-size: 1.15rem;
+      color: var(--theme-color);
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+
+    .answers.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .answer-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.75rem 1.1rem;
+      border-radius: 8px;
+      background: var(--theme-surface);
+      border-left: 3px solid var(--theme-accent);
+      font-size: 1rem;
+      color: var(--theme-color);
+      line-height: 1.4;
+    }
+
+    .star {
+      color: var(--theme-accent);
+      font-size: 0.85rem;
+      margin-left: 0.3rem;
+      vertical-align: middle;
+    }
+
+    .shown .left,
+    .shown .label,
+    .shown h2,
+    .shown .question-box {
+      opacity: 1;
+      transform: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content">
+    <div class="left">
+      <img src="new_transformer.png" alt="Modern Transformer Architecture" />
+    </div>
+    <div class="right">
+      <div class="label">CSS 366 · Lecture 3 — Discussion</div>
+      <h2>What's new in the modern transformer?</h2>
+      <div class="question-box">
+        <span class="q-mark">?</span>
+        <span class="q-text">What updates do we have compared to the original transformer? Let's discuss everything we remember from the lecture.</span>
+      </div>
+      <div class="answers" id="answers">
+        <div class="answer-item">Pre-Norm (instead of Post-Norm)</div>
+        <div class="answer-item">RMS Norm instead of LayerNorm <span class="star">★</span></div>
+        <div class="answer-item">No bias in Feed-Forward layers</div>
+        <div class="answer-item">SwiGLU instead of ReLU <span class="star">★</span></div>
+        <div class="answer-item">RoPE instead of sinusoidal positional embeddings <span class="star">★</span></div>
+        <div class="answer-item">Parallel blocks instead of serial blocks</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const answers = document.getElementById('answers')
+    let revealed = false
+
+    function revealAnswers() {
+      if (!revealed) {
+        answers.classList.add('visible')
+        revealed = true
+      }
+    }
+
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.querySelector('.content').classList.add('shown')
+        revealed = false
+        answers.classList.remove('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.querySelector('.content').classList.remove('shown')
+      }
+    })
+
+    window.addEventListener('click', revealAnswers)
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') && !revealed) {
+        e.stopPropagation()
+        revealAnswers()
+      }
+    }, true)
+  </script>
+</body>
+</html>

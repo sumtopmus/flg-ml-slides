@@ -98,7 +98,7 @@ export const presentations: PresentationMeta[] = ${JSON.stringify(presentations,
 
 export default defineConfig({
   // Set to '/' when using a custom domain.
-  base: '/gridcom-slides/',
+  base: '/flg-ml-slides/',
   build: {
     rollupOptions: {
       input: {

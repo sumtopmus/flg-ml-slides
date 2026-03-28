@@ -1,0 +1,27 @@
+{
+  "id": "lecture-3",
+  "title": "Lecture 3: Transformer Things",
+  "description": "Modern transformer architecture choices: norms, activations, positional embeddings, and attention variants.",
+  "author": "CSS 366",
+  "date": "2025-10-07",
+  "tags": ["transformers", "deep-learning", "architecture"],
+  "theme": "eclipse",
+  "slides": [
+    { "file": "slide-01.html", "title": "Title", "transition": "fade" },
+    { "file": "slide-01b.html", "title": "What's New in 2026?", "transition": "slide-left" },
+    { "file": "slide-01c.html", "title": "RMS Norm", "transition": "slide-left" },
+    { "file": "slide-01d.html", "title": "SwiGLU", "transition": "slide-left" },
+    { "file": "slide-01e.html", "title": "RoPE", "transition": "slide-left" },
+    { "file": "slide-04.html", "title": "Serial vs Parallel Layers", "transition": "slide-left" },
+    { "file": "slide-08b.html", "title": "Hyperparameters", "transition": "fade" },
+    { "file": "slide-08c.html", "title": "Hyperparameter Questions", "transition": "slide-left" },
+    { "file": "slide-08d.html", "title": "Hyperparameter Answers", "transition": "slide-left" },
+    { "file": "slide-08e.html", "title": "Stability Tricks", "transition": "fade" },
+    { "file": "slide-09.html", "title": "Softmax is the Problem", "transition": "slide-left" },
+    { "file": "slide-10.html", "title": "Z-Loss", "transition": "slide-left" },
+    { "file": "slide-11.html", "title": "Fixing the Softmax", "transition": "slide-left" },
+    { "file": "slide-12.html", "title": "KV Cache", "transition": "slide-left" },
+    { "file": "slide-13.html", "title": "MQA & GQA", "transition": "slide-left" },
+    { "file": "slide-14.html", "title": "Sparse Attention", "transition": "slide-left" }
+  ]
+}
