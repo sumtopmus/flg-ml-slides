@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Managing the trade-off</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.8rem 2.5rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 0.9rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .tech-card {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+    }
+
+    .tech-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.45rem;
+      background: rgba(99,102,241,0.15);
+      color: var(--theme-accent);
+    }
+
+    .tech-name {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--theme-color);
+      margin-bottom: 0.35rem;
+    }
+
+    .tech-desc {
+      font-size: 0.75rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.55;
+      margin-bottom: 0.5rem;
+    }
+
+    .effect-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .effect-chip {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+    }
+
+    .chip-var-drops  { background: rgba(52,211,153,0.15);  color: #34d399; }
+    .chip-var-rises  { background: rgba(248,113,113,0.15); color: #f87171; }
+    .chip-var-same   { background: rgba(148,163,184,0.15); color: #94a3b8; }
+    .chip-var-dep    { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .chip-var-bal    { background: rgba(99,102,241,0.15);  color: var(--theme-accent); }
+    .chip-bias-drops { background: rgba(52,211,153,0.15);  color: #34d399; }
+    .chip-bias-rises { background: rgba(248,113,113,0.15); color: #f87171; }
+    .chip-bias-same  { background: rgba(148,163,184,0.15); color: #94a3b8; }
+    .chip-bias-dep   { background: rgba(251,191,36,0.15);  color: #fbbf24; }
+    .chip-bias-bal   { background: rgba(99,102,241,0.15);  color: var(--theme-accent); }
+    .chip-neutral    { background: rgba(148,163,184,0.15); color: #94a3b8; }
+
+    .bottom-rule {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-left: 3px solid var(--theme-accent);
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      font-size: 0.8rem;
+      color: var(--theme-color-secondary);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease 0.45s, transform 0.4s ease 0.45s;
+    }
+
+    .bottom-rule strong { color: var(--theme-color); }
+
+    .visible .eyebrow     { opacity: 1; transform: translateY(0); }
+    .visible h2           { opacity: 1; transform: translateY(0); }
+    .visible .tech-grid   { opacity: 1; transform: translateY(0); }
+    .visible .bottom-rule { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 5 — Managing Bias &amp; Variance trade-off</div>
+    <h2>Managing the trade-off</h2>
+
+    <div class="tech-grid">
+
+      <div class="tech-card">
+        <div class="tech-badge">L1/L2</div>
+        <div class="tech-name">L1/L2 Regularisation</div>
+        <div class="tech-desc">
+          L2 shrinks coefficients toward zero.<br/>
+          L1 can kill some coefficients entirely.</div>
+        <div class="effect-row">
+          <span class="effect-chip chip-var-drops">Variance ↓</span>
+          <span class="effect-chip chip-bias-rises">Bias ↑</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-badge">BAG</div>
+        <div class="tech-name">Bagging</div>
+        <div class="tech-desc">Each individual tree overfits, but their mistakes are somewhat independent.</div>
+        <div class="effect-row">
+          <span class="effect-chip chip-var-drops">Variance ↓</span>
+          <span class="effect-chip chip-bias-same">Bias same</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-badge">+n</div>
+        <div class="tech-name">More Data</div>
+        <div class="tech-desc">Gives the model less room to hallucinate if the model/architecture is correctly selected.</div>
+        <div class="effect-row">
+          <span class="effect-chip chip-var-drops">Variance ↓</span>
+          <span class="effect-chip chip-neutral">Bias —</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-badge">BOOST</div>
+        <div class="tech-name">Boosting</div>
+        <div class="tech-desc">
+          Start with a very simple (high bias) model.<br/>
+          Look at what it got wrong.<br/>
+          Train the next model to fix those errors<br/>
+          Repeat.</div>
+        <div class="effect-row">
+          <span class="effect-chip chip-var-rises">Variance ↑</span>
+          <span class="effect-chip chip-bias-drops">Bias ↓</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-badge">CV</div>
+        <div class="tech-name">Cross-Validation</div>
+        <div class="tech-desc">If a model overall suits well, it won't provide a too biased model or with high variance.</div>
+        <div class="effect-row">
+          <span class="effect-chip chip-var-bal">Variance balance</span>
+          <span class="effect-chip chip-bias-bal">Bias balance</span>
+        </div>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-badge">ARCH</div>
+        <div class="tech-name">Model Choice</div>
+        <div class="tech-desc">
+          A linear regression has high bias and low variance.<br/>
+          A deep neural network can have low bias and high variance.</div>
+        <div class="effect-row">
+          <span class="effect-chip chip-var-dep">Variance depends</span>
+          <span class="effect-chip chip-bias-dep">Bias depends</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bottom-rule">
+      <strong>Rule:</strong> if Bias² dominates → richer model / less regularisation. If Var dominates → regularise, add data, or aggregate.
+    </div>
+
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

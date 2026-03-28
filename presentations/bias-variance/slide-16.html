@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSE as a bias-variance decomposition. Proof</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .proof-img-wrap {
+      text-align: center;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .proof-img-wrap img {
+      max-width: 100%;
+      max-height: 520px;
+      border-radius: 10px;
+      border: 1px solid var(--theme-border);
+    }
+
+    .visible .eyebrow        { opacity: 1; transform: translateY(0); }
+    .visible h2              { opacity: 1; transform: translateY(0); }
+    .visible .proof-img-wrap { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 3 — MSE Theorem</div>
+    <h2>MSE as a bias-variance decomposition. Proof</h2>
+
+    <div class="proof-img-wrap">
+      <img src="imgs/proof_1st_page.png" alt="Proof (Part 1)" />
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diagnosing your model — which term dominates?</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.1rem;
+      align-items: start;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .plot-wrap {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 0.8rem;
+    }
+
+    canvas { display: block; border-radius: 8px; width: 100%; aspect-ratio: 1; }
+
+    .plot-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.6rem;
+    }
+
+    .btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: white;
+      padding: 0.35rem 0.8rem;
+      border-radius: 7px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover { background: rgba(255,255,255,0.12); }
+
+    .legend {
+      display: flex;
+      gap: 0.7rem;
+      font-size: 0.6rem;
+      color: var(--theme-color-muted);
+      align-items: center;
+      margin-left: 0.4rem;
+    }
+
+    .legend span { display: flex; align-items: center; gap: 3px; }
+
+    .swatch-line   { width: 12px; height: 2px; display: inline-block; border-radius: 1px; }
+    .swatch-dash   { width: 12px; height: 0; border-top: 2px dashed rgba(80,180,240,0.5); display: inline-block; }
+    .swatch-circle { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.6); display: inline-block; }
+
+    .diag-card {
+      background: rgba(167,139,250,0.08);
+      border: 1px solid rgba(167,139,250,0.35);
+      border-radius: 10px;
+      padding: 1.4rem 1.3rem;
+    }
+
+    .diag-header {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--theme-accent-alt);
+      margin-bottom: 0.7rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(167,139,250,0.25);
+    }
+
+    .symptoms-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.45rem;
+    }
+
+    .symptom-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .symptom-list li {
+      font-size: 0.85rem;
+      color: var(--theme-color-secondary);
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      line-height: 1.45;
+    }
+
+    .bullet { font-size: 0.6rem; flex-shrink: 0; margin-top: 2px; color: var(--theme-accent-alt); }
+
+    .note-chip {
+      display: inline-block;
+      font-size: 0.72rem;
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 6px;
+      padding: 0.25rem 0.5rem;
+      color: var(--theme-color-muted);
+      line-height: 1.4;
+    }
+
+    .visible .eyebrow  { opacity: 1; transform: translateY(0); }
+    .visible h2        { opacity: 1; transform: translateY(0); }
+    .visible .two-col  { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 4 — Estimation &amp; Practice</div>
+    <h2>Diagnosing your model — which term dominates?</h2>
+
+    <div class="two-col">
+
+      <!-- Left: classification plot -->
+      <div class="plot-wrap">
+        <canvas id="classCanvas" width="500" height="500"></canvas>
+        <div class="plot-controls">
+          <button class="btn" id="resampleBtn">↻ Resample</button>
+          <div class="legend">
+            <span><span class="swatch-circle"></span> class 0</span>
+            <span style="font-size:0.75rem;color:rgba(244,100,120,0.8);font-weight:700;">×</span><span> class 1</span>
+            <span><span class="swatch-dash"></span> ideal</span>
+            <span><span class="swatch-line" style="background:#6040d0;"></span> fitted</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: diagnosis card -->
+      <div class="diag-card">
+        <div class="diag-header">Bias² &amp; Variance dominates</div>
+        <div class="symptoms-label">Symptoms</div>
+        <ul class="symptom-list">
+          <li><span class="bullet">●</span> Training error is high</li>
+          <li><span class="bullet">●</span> Testing error is high</li>
+        </ul>
+        <div class="note-chip">* Can be identified e.g. by comparison with human-level performance</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ── PRNG ── */
+    function mulberry32(a) {
+      return function() {
+        a |= 0; a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    /* ── Data ── */
+    function generateData(seed) {
+      const rng = mulberry32(seed);
+      const pts = [];
+      for (let i = 0; i < 18; i++) pts.push({ x: 0.03 + rng() * 0.42, y: 0.03 + rng() * 0.42, label: 0 });
+      for (let i = 0; i < 22; i++) pts.push({ x: 0.2 + rng() * 0.75, y: 0.35 + rng() * 0.6, label: 1 });
+      const outliers = [];
+      for (let i = 0; i < 2; i++) {
+        const p = { x: 0.32 + rng() * 0.22, y: 0.38 + rng() * 0.18, label: 0, outlier: true };
+        pts.push(p); outliers.push(p);
+      }
+      for (let i = 0; i < 3; i++) pts.push({ x: 0.08 + rng() * 0.25, y: 0.22 + rng() * 0.22, label: 1 });
+      return { pts, outliers };
+    }
+
+    /* ── Boundary with bulge around outliers ── */
+    function buildBoundary(slope, intercept, outliers) {
+      const lineY = x => slope * x + intercept;
+      if (outliers.length < 2) {
+        const path = [];
+        for (let i = 0; i <= 200; i++) { const x = -0.1 + (i / 200) * 1.2; path.push({ x, y: lineY(x) }); }
+        return path;
+      }
+      const o1 = outliers[0], o2 = outliers[1];
+      const cx = (o1.x + o2.x) / 2, cy = (o1.y + o2.y) / 2;
+      const outliersAbove = cy > lineY(cx);
+      const norm = Math.sqrt(1 + slope * slope);
+      const perpDx = -slope / norm, perpDy = 1 / norm;
+      const bulgeDist = 0.15, bulgeDir = outliersAbove ? 1 : -1;
+      const ctrlX = cx + bulgeDir * perpDx * bulgeDist;
+      const ctrlY = cy + bulgeDir * perpDy * bulgeDist;
+      const halfSpan = 0.14;
+      const lineDx = 1 / norm, lineDy = slope / norm;
+      const projT = cx * lineDx + (cy - intercept) * lineDy;
+      const xStart = (projT - halfSpan) * lineDx;
+      const yStart = intercept + (projT - halfSpan) * lineDy;
+      const xEnd = (projT + halfSpan) * lineDx;
+      const yEnd = intercept + (projT + halfSpan) * lineDy;
+      const path = [];
+      for (let i = 0; i <= 80; i++) { const x = -0.1 + (i / 80) * (xStart + 0.1); path.push({ x, y: lineY(x) }); }
+      for (let i = 0; i <= 100; i++) {
+        const t = i / 100, omt = 1 - t;
+        path.push({ x: omt*omt*xStart + 2*omt*t*ctrlX + t*t*xEnd, y: omt*omt*yStart + 2*omt*t*ctrlY + t*t*yEnd });
+      }
+      for (let i = 0; i <= 80; i++) { const x = xEnd + (i / 80) * (1.1 - xEnd); path.push({ x, y: lineY(x) }); }
+      return path;
+    }
+
+    /* ── Draw ── */
+    let seed = 42;
+    const canvas = document.getElementById('classCanvas');
+
+    function draw() {
+      const { pts, outliers } = generateData(seed);
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = 500 * dpr; canvas.height = 500 * dpr;
+      ctx.scale(dpr, dpr);
+      const CW = 500, CH = 500;
+      ctx.clearRect(0, 0, CW, CH);
+
+      const m = 44, pw = CW - m * 2, ph = CH - m * 2;
+      const toX = x => m + x * pw, toY = y => m + (1 - y) * ph;
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 0.5;
+      for (let i = 0; i <= 10; i++) {
+        const gx = m + (i/10)*pw; ctx.beginPath(); ctx.moveTo(gx, m); ctx.lineTo(gx, m+ph); ctx.stroke();
+        const gy = m + (i/10)*ph; ctx.beginPath(); ctx.moveTo(m, gy); ctx.lineTo(m+pw, gy); ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(m, m+ph); ctx.lineTo(m+pw, m+ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(m, m); ctx.lineTo(m, m+ph); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = "italic 14px 'Segoe UI', sans-serif";
+      ctx.fillText('x₁', m+pw+8, m+ph+5); ctx.fillText('x₂', m-5, m-10);
+
+      ctx.strokeStyle = 'rgba(80,180,240,0.45)'; ctx.lineWidth = 2; ctx.setLineDash([8, 5]);
+      ctx.beginPath(); let started = false;
+      for (let i = 0; i <= 200; i++) {
+        const x = -0.1 + (i/200)*1.2, y = -0.75*x + 0.72;
+        if (y < -0.02 || y > 1.02) continue;
+        if (!started) { ctx.moveTo(toX(x), toY(y)); started = true; } else ctx.lineTo(toX(x), toY(y));
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+
+      const boundary = buildBoundary(-0.85, 0.68, outliers);
+      ctx.strokeStyle = '#6040d0'; ctx.lineWidth = 2.8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath(); started = false;
+      for (const p of boundary) {
+        const px = toX(p.x), py = toY(p.y);
+        if (px < m-5 || px > m+pw+5 || py < m-5 || py > m+ph+5) { started = false; continue; }
+        if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      pts.forEach(p => {
+        const px = toX(p.x), py = toY(p.y);
+        if (p.label === 0) {
+          ctx.strokeStyle = p.outlier ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.55)';
+          ctx.lineWidth = p.outlier ? 2.2 : 1.5;
+          ctx.beginPath(); ctx.arc(px, py, p.outlier ? 7 : 5, 0, Math.PI*2); ctx.stroke();
+        } else {
+          ctx.strokeStyle = 'rgba(244,100,120,0.7)'; ctx.lineWidth = 2;
+          const s = 5;
+          ctx.beginPath(); ctx.moveTo(px-s, py-s); ctx.lineTo(px+s, py+s); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(px+s, py-s); ctx.lineTo(px-s, py+s); ctx.stroke();
+        }
+      });
+
+      for (const o of outliers) {
+        const px = toX(o.x), py = toY(o.y);
+        ctx.strokeStyle = 'rgba(140,100,220,0.45)'; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+        ctx.beginPath(); ctx.arc(px, py, 14, 0, Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+      }
+    }
+
+    document.getElementById('resampleBtn').addEventListener('click', () => { seed++; draw(); });
+
+    window.addEventListener('message', e => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible');
+        setTimeout(draw, 300);
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible');
+      }
+    });
+
+    draw();
+  </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Did you meet the challenge?</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #fb923c;
+      padding: 0.35rem 1rem;
+      border: 2px solid #fb923c;
+      border-radius: 99px;
+      background: rgba(251, 146, 60, 0.12);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .q-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #fb923c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .top-text {
+      font-size: clamp(1.3rem, 2.8vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .sub-text {
+      font-size: 1rem;
+      color: var(--theme-color-secondary);
+      margin-top: 0.2rem;
+    }
+
+    .discussion-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .disc-card {
+      background: rgba(251,146,60,0.06);
+      border: 1px solid rgba(251,146,60,0.25);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      gap: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .disc-num {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #fb923c;
+      background: rgba(251,146,60,0.15);
+      border-radius: 50%;
+      width: 1.6rem;
+      height: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .disc-text {
+      font-size: 0.88rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.6;
+    }
+
+    .disc-text strong { color: var(--theme-color); }
+
+    .visible .eyebrow          { opacity: 1; transform: translateY(0); }
+    .visible .top-row          { opacity: 1; transform: translateY(0); }
+    .visible .discussion-cards { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow"><span>⚡</span><span>Challenge</span></div>
+
+    <div class="top-row">
+      <div class="q-circle">?</div>
+      <div>
+        <div class="top-text">Did you meet the challenge?</div>
+        <div class="sub-text">How did you solve it?</div>
+      </div>
+    </div>
+
+    <div class="discussion-cards">
+
+      <div class="disc-card">
+        <div class="disc-num">1</div>
+        <div class="disc-text">
+          A manager asked to deploy an overfitted model because it showed a better target metric on the test sample than the other models.
+        </div>
+      </div>
+
+      <div class="disc-card">
+        <div class="disc-num">2</div>
+        <div class="disc-text">
+          Where do you set this boundary when a model is <strong>'good enough'</strong> and when it's already with high bias/variance?
+          (e.g. confidence intervals, CV, X% difference, budget limits to train a new model etc.)
+        </div>
+      </div>
+
+      <div class="disc-card">
+        <div class="disc-num">3</div>
+        <div class="disc-text">
+          Your ensemble of 10 models reduces variance beautifully, but the infrastructure team says it's <strong>too expensive to serve</strong>.
+          How do you find the middle ground?
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

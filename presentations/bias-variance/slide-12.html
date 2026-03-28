@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSE as a bias-variance decomposition. General case</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--theme-accent);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--theme-color-secondary);
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease 0.14s, transform 0.4s ease 0.14s;
+    }
+
+    .main-formula {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-left: 3px solid var(--theme-accent);
+      border-radius: 10px;
+      padding: 1.4rem 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.14s, transform 0.5s ease 0.14s;
+    }
+
+    .main-formula .top-line {
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+
+    .main-formula .expand-line {
+      font-size: clamp(0.8rem, 1.6vw, 1.05rem);
+      font-weight: 600;
+      color: var(--theme-color-secondary);
+    }
+
+    .accent { color: var(--theme-accent); }
+    .alt    { color: var(--theme-accent-alt); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .comment-block {
+      background: var(--theme-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: var(--theme-color-muted);
+      line-height: 1.55;
+    }
+
+    .comment-block .hash {
+      color: var(--theme-accent);
+      font-weight: 700;
+      margin-right: 0.2em;
+    }
+
+    .note-block {
+      background: rgba(99,102,241,0.08);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.6;
+      margin-top: 0.8rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.45s, transform 0.5s ease 0.45s;
+    }
+
+    .note-block strong { color: var(--theme-color); }
+
+    .visible .eyebrow       { opacity: 1; transform: translateY(0); }
+    .visible h2             { opacity: 1; transform: translateY(0); }
+    .visible .subtitle      { opacity: 1; transform: translateY(0); }
+    .visible .main-formula  { opacity: 1; transform: translateY(0); }
+    .visible .two-col       { opacity: 1; transform: translateY(0); }
+    .visible .note-block    { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow">§ 3 — MSE Theorem</div>
+    <h2>MSE as a bias-variance decomposition. General case</h2>
+
+    <div class="main-formula">
+      <div class="top-line">
+        <span class="accent">MSE</span>
+        &nbsp;=&nbsp;
+        <span class="alt">Variance</span>
+        &nbsp;+&nbsp;
+        <span class="accent">Bias²</span>
+        &nbsp;+&nbsp;
+        σ²
+      </div>
+      <div class="expand-line">
+        𝔼<sub>D</sub>[(<span class="alt">f̂</span> − Y)²]
+        &nbsp;=&nbsp;
+        𝔼<sub>D</sub>[(<span class="alt">f̂</span> − 𝔼[<span class="alt">f̂</span>])²]
+        &nbsp;+&nbsp;
+        (𝔼[<span class="alt">f̂</span>] − f)²
+        &nbsp;+&nbsp;
+        Var(ε|X)
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="comment-block">
+        <span class="hash">#</span>
+        σ² = randomness in the data-generating process itself, not removable by choosing a better estimator of f(x) alone
+      </div>
+      <div class="comment-block">
+        <span class="hash">#</span>
+        σ²(x) is used instead of σ² if the noise level depends on x
+      </div>
+    </div>
+
+    <div class="note-block">
+      σ² is usually omitted because it's assumed that σ² is the same for all models
+      e.g. errors in target or unobserved features which influence the target
+    </div>
+
+  </div>
+
+  <script>
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>

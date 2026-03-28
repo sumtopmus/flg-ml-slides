@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warm-up: Three Models, One Decision</title>
+  <link rel="stylesheet" href="../../themes/aurora.css" />
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #fb923c;
+      padding: 0.35rem 1rem;
+      border: 2px solid #fb923c;
+      border-radius: 99px;
+      background: rgba(251, 146, 60, 0.12);
+      margin-bottom: 0.6rem;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease 0.07s, transform 0.5s ease 0.07s;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+      text-align: left;
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 0.5s ease 0.22s, transform 0.5s ease 0.22s;
+    }
+
+    .card {
+      border: 1px solid var(--theme-border);
+      border-radius: 10px;
+      background: var(--theme-surface);
+      padding: 0.9rem 1rem 0.85rem;
+      position: relative;
+    }
+
+    .card-a { border-color: rgba(248,113,113,0.35); }
+    .card-b { border-color: rgba(74,222,128,0.35); }
+    .card-c { border-color: rgba(251,191,36,0.35); }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .model-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .circle-a { background: #f87171; }
+    .circle-b { background: #4ade80; }
+    .circle-c { background: #fbbf24; }
+
+    .nickname {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--theme-color-secondary);
+      font-style: italic;
+    }
+
+    .metrics {
+      display: flex;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .metric {
+      flex: 1;
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      padding: 0.45rem 0.6rem;
+    }
+
+    .metric-label {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--theme-color-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .val-mid      { color: #fbbf24; }
+    .val-low      { color: #4ade80; }
+    .val-good     { color: #4ade80; }
+    .val-high     { color: #f87171; }
+    .val-nearzero { color: #4ade80; }
+    .card-a .metric-val { color: #f87171; }
+    .card-b .metric-val { color: #4ade80; }
+    .card-c .metric-val { color: #fbbf24; }
+
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--theme-color-secondary);
+      line-height: 1.55;
+      margin-bottom: 0.7rem;
+    }
+
+    .callout {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.28rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .callout-bias {
+      background: rgba(248,113,113,0.12);
+      border: 1px solid rgba(248,113,113,0.4);
+      color: #f87171;
+    }
+
+    .callout-sweet {
+      background: rgba(74,222,128,0.12);
+      border: 1px solid rgba(74,222,128,0.4);
+      color: #4ade80;
+    }
+
+    .callout-variance {
+      background: rgba(251,191,36,0.12);
+      border: 1px solid rgba(251,191,36,0.4);
+      color: #fbbf24;
+    }
+
+    .visible .eyebrow { opacity: 1; transform: translateY(0); }
+    .visible h2       { opacity: 1; transform: translateY(0); }
+    .visible .cards   { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grid-lines"></div>
+
+  <div class="content" id="content">
+
+    <div class="eyebrow"><span>⚡</span><span>Warm-up Challenge</span></div>
+
+    <h2>Three models, one decision</h2>
+
+    <div class="cards">
+
+      <!-- Model A -->
+      <div class="card card-a">
+        <div class="card-head">
+          <div class="model-circle circle-a">A</div>
+          <span class="nickname">"It's robust"</span>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Train error</div>
+            <div class="metric-val val-mid" id="train-a">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Test error</div>
+            <div class="metric-val val-mid" id="test-a">—</div>
+          </div>
+        </div>
+        <div class="card-desc">
+          Predicts the same gentle slope for all future data. Simple and stable.
+        </div>
+        <div class="card-desc">
+          Model A is wrong on average — it can't capture the curve.
+        </div>
+        <div class="callout callout-bias"> This is what we'll call BIAS</div>
+      </div>
+
+      <!-- Model B -->
+      <div class="card card-b">
+        <div class="card-head">
+          <div class="model-circle circle-b">B</div>
+          <span class="nickname">"It fits well"</span>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Train error</div>
+            <div class="metric-val val-low" id="train-b">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Test error</div>
+            <div class="metric-val val-good" id="test-b">—</div>
+          </div>
+        </div>
+        <div class="card-desc">
+          Captures the wave pattern.
+          Reasonable on new data.
+        </div>
+        <div class="card-desc">
+          Model B balances both.
+        </div>
+        <div class="callout callout-sweet">✓ Sweet spot — but how do we find it mathematically?</div>
+      </div>
+
+      <!-- Model C -->
+      <div class="card card-c">
+        <div class="card-head">
+          <div class="model-circle circle-c">C</div>
+          <span class="nickname">"Zero errors"</span>
+        </div>
+        <div class="metrics">
+          <div class="metric">
+            <div class="metric-label">Train error</div>
+            <div class="metric-val val-nearzero" id="train-c">—</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Test error</div>
+            <div class="metric-val val-high" id="test-c">—</div>
+          </div>
+        </div>
+        <div class="card-desc">
+          Passes through every training point. Wild oscillations between them.
+        </div>
+        <div class="card-desc">
+          Model C is perfect on training data but terrible on new data — it's unstable.
+        </div>
+        <div class="callout callout-variance"> This is what we'll call VARIANCE</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function loadMetrics() {
+      try {
+        const raw = localStorage.getItem('bv-metrics');
+        if (!raw) return;
+        const metrics = JSON.parse(raw);
+        const map = {};
+        metrics.forEach(m => { map[m.label] = m; });
+
+        if (map.A) {
+          document.getElementById('train-a').textContent = map.A.trE.toFixed(3);
+          document.getElementById('test-a').textContent = map.A.teE.toFixed(3);
+        }
+        if (map.B) {
+          document.getElementById('train-b').textContent = map.B.trE.toFixed(3);
+          document.getElementById('test-b').textContent = map.B.teE.toFixed(3);
+        }
+        if (map.C) {
+          document.getElementById('train-c').textContent = map.C.trE.toFixed(3);
+          document.getElementById('test-c').textContent = map.C.teE.toFixed(3);
+        }
+      } catch (_) {}
+    }
+
+    window.addEventListener('message', (e) => {
+      if (e.data?.type === 'slideEnter') {
+        loadMetrics();
+        document.getElementById('content').classList.add('visible')
+      }
+      if (e.data?.type === 'slideExit') {
+        document.getElementById('content').classList.remove('visible')
+      }
+    })
+  </script>
+</body>
+</html>
